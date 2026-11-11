@@ -1,0 +1,29 @@
+# Build files
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+_compile_commands.json
+compile_commands.json
+
+# Coverage
+*.gcda
+*.gcno
+*.gcov
+coverage/
+coverage_html/
+
+# Go
+*.test
+coverage.out
+coverage.html
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
