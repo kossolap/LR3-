@@ -1,3 +1,4 @@
+
 #include "lr3/AVLTree.h"
 
 #include <algorithm>
@@ -29,16 +30,16 @@ AVLTree::~AVLTree() {
     clear();
 }
 
-int AVLTree::height(Node* node) const {
+int AVLTree::nodeHeight(const Node* node) noexcept {
     return node == nullptr ? 0 : node->height;
 }
 
-int AVLTree::balanceFactor(Node* node) const {
-    return node == nullptr ? 0 : height(node->right) - height(node->left);
+int AVLTree::balanceFactor(Node* node) {
+    return node == nullptr ? 0 : nodeHeight(node->right) - nodeHeight(node->left);
 }
 
 void AVLTree::updateHeight(Node* node) {
-    node->height = 1 + std::max(height(node->left), height(node->right));
+    node->height = 1 + std::max(nodeHeight(node->left), nodeHeight(node->right));
 }
 
 AVLTree::Node* AVLTree::rotateRight(Node* node) {
@@ -74,7 +75,7 @@ AVLTree::Node* AVLTree::balance(Node* node) {
 
     updateHeight(node);
 
-    int factor = balanceFactor(node);
+    const int factor = balanceFactor(node);
 
     if (factor > 1) {
         if (balanceFactor(node->right) < 0) {
@@ -98,7 +99,7 @@ AVLTree::Node* AVLTree::balance(Node* node) {
 AVLTree::Node* AVLTree::insert(Node* node, const std::string& key) {
     if (node == nullptr) {
         ++size_;
-        return new Node(key);
+        return new Node(key); // NOLINT(cppcoreguidelines-owning-memory)
     }
 
     if (key < node->key) {
@@ -143,7 +144,7 @@ AVLTree::Node* AVLTree::remove(Node* node, const std::string& key) {
         Node* left = node->left;
         Node* right = node->right;
 
-        delete node;
+        delete node; // NOLINT(cppcoreguidelines-owning-memory)
         --size_;
 
         if (right == nullptr) {
@@ -198,7 +199,7 @@ bool AVLTree::empty() const noexcept {
 }
 
 int AVLTree::height() const {
-    return height(root_);
+    return nodeHeight(root_);
 }
 
 void AVLTree::inOrder(Node* node, std::vector<std::string>& result) const {
@@ -227,7 +228,7 @@ void AVLTree::destroy(Node* node) noexcept {
     destroy(node->left);
     destroy(node->right);
 
-    delete node;
+    delete node; // NOLINT(cppcoreguidelines-owning-memory)
 }
 
 AVLTree::Node* AVLTree::clone(Node* node) {
@@ -235,7 +236,7 @@ AVLTree::Node* AVLTree::clone(Node* node) {
         return nullptr;
     }
 
-    Node* copy = new Node(node->key);
+    Node* copy = new Node(node->key); // NOLINT(cppcoreguidelines-owning-memory)
     copy->height = node->height;
 
     try {

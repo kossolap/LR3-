@@ -1,3 +1,4 @@
+
 #include "lr3/List.h"
 
 #include <stdexcept>
@@ -9,12 +10,16 @@ List::Node::Node(const std::string& value) : data(value), next(nullptr) {}
 List::List() : head_(nullptr), tail_(nullptr), size_(0) {}
 
 List::List(const List& other) : List() {
+    try {
+        Node* current = other.head_;
 
-    Node* current = other.head_;
-
-    while (current != nullptr) {
-        pushBack(current->data);
-        current = current->next;
+        while (current != nullptr) {
+            pushBack(current->data);
+            current = current->next;
+        }
+    } catch (...) {
+        clear();
+        throw;
     }
 }
 
@@ -42,7 +47,7 @@ List::~List() {
 }
 
 void List::pushFront(const std::string& value) {
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->next = head_;
     head_ = newNode;
@@ -55,7 +60,7 @@ void List::pushFront(const std::string& value) {
 }
 
 void List::pushBack(const std::string& value) {
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     if (tail_ == nullptr) {
         head_ = newNode;
@@ -68,7 +73,8 @@ void List::pushBack(const std::string& value) {
     ++size_;
 }
 
-void List::insertBefore(const std::string& target, const std::string& value) {
+void List::insertBefore(const std::string& target,
+                        const std::string& value) { // NOLINT(bugprone-easily-swappable-parameters)
     if (head_ == nullptr) {
         throw std::out_of_range("Target not found");
     }
@@ -88,7 +94,7 @@ void List::insertBefore(const std::string& target, const std::string& value) {
         throw std::out_of_range("Target not found");
     }
 
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->next = current->next;
     current->next = newNode;
@@ -96,7 +102,8 @@ void List::insertBefore(const std::string& target, const std::string& value) {
     ++size_;
 }
 
-void List::insertAfter(const std::string& target, const std::string& value) {
+void List::insertAfter(const std::string& target,
+                       const std::string& value) { // NOLINT(bugprone-easily-swappable-parameters)
     Node* current = head_;
 
     while (current != nullptr && current->data != target) {
@@ -107,7 +114,7 @@ void List::insertAfter(const std::string& target, const std::string& value) {
         throw std::out_of_range("Target not found");
     }
 
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->next = current->next;
     current->next = newNode;
@@ -127,7 +134,7 @@ void List::popFront() {
     Node* oldHead = head_;
 
     head_ = head_->next;
-    delete oldHead;
+    delete oldHead; // NOLINT(cppcoreguidelines-owning-memory)
 
     --size_;
 
@@ -142,7 +149,7 @@ void List::popBack() {
     }
 
     if (head_ == tail_) {
-        delete head_;
+        delete head_; // NOLINT(cppcoreguidelines-owning-memory)
         head_ = nullptr;
         tail_ = nullptr;
         size_ = 0;
@@ -155,7 +162,7 @@ void List::popBack() {
         current = current->next;
     }
 
-    delete tail_;
+    delete tail_; // NOLINT(cppcoreguidelines-owning-memory)
 
     tail_ = current;
     tail_->next = nullptr;
@@ -191,7 +198,7 @@ bool List::remove(const std::string& value) {
         tail_ = current;
     }
 
-    delete nodeToDelete;
+    delete nodeToDelete; // NOLINT(cppcoreguidelines-owning-memory)
     --size_;
 
     return true;
@@ -238,7 +245,7 @@ bool List::empty() const noexcept {
 void List::clear() noexcept {
     while (head_ != nullptr) {
         Node* nextNode = head_->next;
-        delete head_;
+        delete head_; // NOLINT(cppcoreguidelines-owning-memory)
         head_ = nextNode;
     }
 

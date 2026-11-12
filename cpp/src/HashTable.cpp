@@ -1,155 +1,196 @@
 #include "lr3/HashTable.h"
 
-#include <functional>
-#include <gsl/pointers>
+#include <limits>
 #include <stdexcept>
-#include <utility>
 
 namespace lr3 {
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-HashTable::Node::Node(const std::string& keyValue, const std::string& dataValue)
-    : key(keyValue), value(dataValue), next(nullptr) {}
+bool HashTable::isPrime(std::size_t number) noexcept {
+    if (number < 2) {
+        return false;
+    }
+
+    if (number == 2) {
+        return true;
+    }
+
+    if (number % 2 == 0) {
+        return false;
+    }
+
+    for (std::size_t divisor = 3; divisor <= number / divisor; divisor += 2) {
+        if (number % divisor == 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::size_t HashTable::nextPrime(std::size_t number) {
+    if (number <= 2) {
+        return 2;
+    }
+
+    if (number % 2 == 0) {
+        ++number;
+    }
+
+    while (!isPrime(number)) {
+        if (number > std::numeric_limits<std::size_t>::max() - 2) {
+            throw std::length_error("HashTable capacity is too large");
+        }
+
+        number += 2;
+    }
+
+    return number;
+}
 
 HashTable::HashTable(std::size_t capacity)
-    : buckets_(capacity == 0 ? defaultCapacity : capacity, nullptr), size_(0) {}
+    : table_(nextPrime(capacity == 0 ? defaultCapacity : capacity)), size_(0) {}
 
-HashTable::HashTable(const HashTable& other) : HashTable(other.buckets_.size()) {
-    for (const auto& item : other.toVector()) {
-        insert(item.first, item.second);
-    }
-}
+std::uint64_t HashTable::foldingHash(int key) noexcept {
+    std::int64_t number = key;
 
-HashTable& HashTable::operator=(const HashTable& other) {
-    if (this == &other) {
-        return *this;
+    if (number < 0) {
+        number = -number;
     }
 
-    HashTable copy(other);
+    std::uint64_t value = static_cast<std::uint64_t>(number);
+    std::uint64_t sum = 0;
 
-    std::swap(buckets_, copy.buckets_);
-    std::swap(size_, copy.size_);
-
-    return *this;
-}
-
-HashTable::~HashTable() {
-    clear();
-}
-
-std::size_t HashTable::hash(const std::string& key) const {
-    return std::hash<std::string>{}(key) % buckets_.size();
-}
-
-void HashTable::rehash() {
-    std::vector<Node*> oldBuckets = std::move(buckets_);
-
-    buckets_.assign(oldBuckets.size() * 2, nullptr);
-    size_ = 0;
-
-    for (Node* head : oldBuckets) {
-        while (head != nullptr) {
-            Node* nextNode = head->next;
-
-            const std::size_t index = hash(head->key);
-
-            head->next = buckets_[index];
-            buckets_[index] = head;
-
-            ++size_;
-            head = nextNode;
-        }
+    while (value > 0) {
+        sum += value % 1000;
+        value /= 1000;
     }
+
+    return sum;
 }
 
-void HashTable::insert(const std::string& key, const std::string& value) {
-    const std::size_t index = hash(key);
+std::size_t HashTable::primaryHash(int key) const noexcept {
+    return static_cast<std::size_t>(foldingHash(key) % table_.size());
+}
 
-    Node* current = buckets_[index];
+std::size_t HashTable::secondaryHash(int key) const noexcept {
+    return 1 + static_cast<std::size_t>(foldingHash(key) % (table_.size() - 1));
+}
 
-    while (current != nullptr) {
-        if (current->key == key) {
-            current->value = value;
-            return;
+std::size_t HashTable::findIndex(int key) const noexcept {
+    const std::size_t capacityValue = table_.size();
+
+    std::size_t index = primaryHash(key);
+    const std::size_t step = secondaryHash(key);
+
+    for (std::size_t attempt = 0; attempt < capacityValue; ++attempt) {
+        const Entry& entry = table_[index];
+
+        if (entry.state == State::Empty) {
+            return capacityValue;
         }
 
-        current = current->next;
+        if (entry.state == State::Occupied && entry.key == key) {
+            return index;
+        }
+
+        if (index >= capacityValue - step) {
+            index -= capacityValue - step;
+        } else {
+            index += step;
+        }
     }
 
-    gsl::owner<Node*> newNode = new Node(key, value);
-
-    newNode->next = buckets_[index];
-    buckets_[index] = newNode;
-
-    ++size_;
-
-    if (size_ > buckets_.size() * 3 / 4) {
-        rehash();
-    }
+    return capacityValue;
 }
 
-bool HashTable::remove(const std::string& key) {
-    const std::size_t index = hash(key);
+std::size_t HashTable::findInsertionIndex(int key) const noexcept {
+    const std::size_t capacityValue = table_.size();
 
-    Node* current = buckets_[index];
-    Node* previous = nullptr;
+    std::size_t index = primaryHash(key);
+    const std::size_t step = secondaryHash(key);
 
-    while (current != nullptr) {
-        if (current->key == key) {
-            if (previous == nullptr) {
-                buckets_[index] = current->next;
-            } else {
-                previous->next = current->next;
+    std::size_t firstDeleted = capacityValue;
+
+    for (std::size_t attempt = 0; attempt < capacityValue; ++attempt) {
+        const Entry& entry = table_[index];
+
+        if (entry.state == State::Occupied) {
+            if (entry.key == key) {
+                return index;
             }
-
-            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-            delete current;
-
-            --size_;
-            return true;
+        } else if (entry.state == State::Deleted) {
+            if (firstDeleted == capacityValue) {
+                firstDeleted = index;
+            }
+        } else {
+            return firstDeleted == capacityValue ? index : firstDeleted;
         }
 
-        previous = current;
-        current = current->next;
+        if (index >= capacityValue - step) {
+            index -= capacityValue - step;
+        } else {
+            index += step;
+        }
     }
 
-    return false;
+    return firstDeleted;
 }
 
-bool HashTable::contains(const std::string& key) const {
-    const std::size_t index = hash(key);
+void HashTable::insert(int key, const std::string& value) {
+    const std::size_t index = findInsertionIndex(key);
 
-    Node* current = buckets_[index];
-
-    while (current != nullptr) {
-        if (current->key == key) {
-            return true;
-        }
-
-        current = current->next;
+    if (index == table_.size()) {
+        throw std::overflow_error("HashTable is full");
     }
 
-    return false;
+    Entry& entry = table_[index];
+
+    if (entry.state != State::Occupied) {
+        ++size_;
+    }
+
+    entry.value = value;
+    entry.key = key;
+    entry.state = State::Occupied;
 }
 
-std::string HashTable::get(const std::string& key) const {
-    const std::size_t index = hash(key);
+bool HashTable::remove(int key) {
+    const std::size_t index = findIndex(key);
 
-    Node* current = buckets_[index];
-
-    while (current != nullptr) {
-        if (current->key == key) {
-            return current->value;
-        }
-
-        current = current->next;
+    if (index == table_.size()) {
+        return false;
     }
 
-    throw std::out_of_range("Key not found");
+    Entry& entry = table_[index];
+
+    entry.value.clear();
+    entry.state = State::Deleted;
+
+    --size_;
+
+    return true;
+}
+
+bool HashTable::contains(int key) const {
+    return findIndex(key) != table_.size();
+}
+
+std::string HashTable::get(int key) const {
+    const std::size_t index = findIndex(key);
+
+    if (index == table_.size()) {
+        throw std::out_of_range("Key not found");
+    }
+
+    return table_[index].value;
 }
 
 std::size_t HashTable::size() const noexcept {
     return size_;
+}
+
+std::size_t HashTable::capacity() const noexcept {
+    return table_.size();
 }
 
 bool HashTable::empty() const noexcept {
@@ -157,28 +198,22 @@ bool HashTable::empty() const noexcept {
 }
 
 void HashTable::clear() noexcept {
-    for (Node*& head : buckets_) {
-        while (head != nullptr) {
-            Node* nodeToDelete = head;
-            head = head->next;
-
-            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-            delete nodeToDelete;
-        }
+    for (Entry& entry : table_) {
+        entry.value.clear();
+        entry.key = 0;
+        entry.state = State::Empty;
     }
 
     size_ = 0;
 }
 
-std::vector<std::pair<std::string, std::string>> HashTable::toVector() const {
-    std::vector<std::pair<std::string, std::string>> result;
+std::vector<std::pair<int, std::string>> HashTable::toVector() const {
+    std::vector<std::pair<int, std::string>> result;
+    result.reserve(size_);
 
-    for (Node* head : buckets_) {
-        Node* current = head;
-
-        while (current != nullptr) {
-            result.emplace_back(current->key, current->value);
-            current = current->next;
+    for (const Entry& entry : table_) {
+        if (entry.state == State::Occupied) {
+            result.emplace_back(entry.key, entry.value);
         }
     }
 

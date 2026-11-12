@@ -1,0 +1,146 @@
+@startuml
+title UML-диаграмма структур данных Go
+skinparam classAttributeIconSize 0
+
+package "lr3/structures" {
+
+    class Array {
+        + NewArray(): *Array
+        + PushBack(value: string)
+        + Insert(index: int, value: string): bool
+        + RemoveAt(index: int): bool
+        + Set(index: int, value: string): bool
+        + GetAt(index: int): (string, bool)
+        + Get(): []string
+        + Size(): int
+        + Empty(): bool
+        + Clear()
+    }
+
+    class LinkedList {
+        + NewLinkedList(): *LinkedList
+        + PushFront(value: string)
+        + PushBack(value: string)
+        + PopFront(): (string, bool)
+        + PopBack(): (string, bool)
+        + Index(index: int): *FNode
+        + InsertBeforeValue(target, value: string): bool
+        + InsertAfterValue(target, value: string): bool
+        + RemoveValue(value: string): bool
+        + RemoveBeforeValue(value: string): bool
+        + RemoveAfterValue(value: string): bool
+        + Find(value: string): int
+        + Get(): []string
+        + GetAfterValue(value: string): []string
+        + GetBeforeValue(value: string): []string
+        + Size(): int
+        + Empty(): bool
+        + Clear()
+    }
+
+    class FNode
+    class DoubleLinkedList {
+        + NewDoubleLinkedList(): *DoubleLinkedList
+        + PushFront(value: string)
+        + PushBack(value: string)
+        + PopFront(): (string, bool)
+        + PopBack(): (string, bool)
+        + Index(index: int): *DNode
+        + InsertBeforeValue(target, value: string): bool
+        + InsertAfterValue(target, value: string): bool
+        + RemoveValue(value: string): bool
+        + RemoveBeforeValue(value: string): bool
+        + RemoveAfterValue(value: string): bool
+        + Find(value: string): int
+        + Get(): []string
+        + GetReverse(): []string
+        + GetAfterValue(value: string): []string
+        + GetBeforeValue(value: string): []string
+        + Size(): int
+        + Empty(): bool
+        + Clear()
+    }
+
+    class DNode
+
+    class Queue {
+        + NewQueue(): *Queue
+        + Push(value: string)
+        + Pop(): (string, bool)
+        + Get(): []string
+        + Size(): int
+        + Empty(): bool
+        + Clear()
+    }
+
+    class QNode
+
+    class Stack {
+        + NewStack(): *Stack
+        + Push(value: string)
+        + Pop(): (string, bool)
+        + Get(): []string
+        + Size(): int
+        + Empty(): bool
+        + Clear()
+    }
+
+    class SNode
+
+    class HashTable {
+        + NewHashTable(capacity: int): *HashTable
+        + Insert(key: int, value: string): error
+        + Get(key: int): (string, bool)
+        + Contains(key: int): bool
+        + Remove(key: int): bool
+        + Size(): int
+        + Capacity(): int
+        + Empty(): bool
+        + Clear()
+        + Entries(): map[int]string
+        + String(): string
+    }
+
+    class hashEntry
+
+    class AVLTree {
+        + NewAVLTree(): *AVLTree
+        + Insert(key: int)
+        + Remove(key: int): bool
+        + Find(key: int): bool
+        + Size(): int
+        + Empty(): bool
+        + Clear()
+        + Inorder(): []int
+        + Preorder(): []int
+        + Postorder(): []int
+    }
+
+    class AVLNode
+
+    LinkedList "1" *-- "0..*" FNode
+    DoubleLinkedList "1" *-- "0..*" DNode
+    Queue "1" *-- "0..*" QNode
+    Stack "1" *-- "0..*" SNode
+    HashTable "1" *-- "0..*" hashEntry
+    AVLTree "1" *-- "0..*" AVLNode
+}
+
+package "lr3/serialization" {
+    class Data
+    class JSONCodec <<utility>> {
+        + Serialize(data: *Data): ([]byte, error)
+        + Deserialize(encoded: []byte): (*Data, error)
+    }
+
+    JSONCodec ..> Data
+    JSONCodec ..> Array
+    JSONCodec ..> LinkedList
+    JSONCodec ..> DoubleLinkedList
+    JSONCodec ..> Queue
+    JSONCodec ..> Stack
+    JSONCodec ..> HashTable
+    JSONCodec ..> AVLTree
+}
+
+@enduml

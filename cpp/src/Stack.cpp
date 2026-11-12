@@ -1,3 +1,4 @@
+
 #include "lr3/Stack.h"
 
 #include <stdexcept>
@@ -9,11 +10,15 @@ Stack::Node::Node(const std::string& value) : data(value), next(nullptr) {}
 Stack::Stack() : top_(nullptr), size_(0) {}
 
 Stack::Stack(const Stack& other) : Stack() {
+    try {
+        const std::vector<std::string> values = other.toVector();
 
-    std::vector<std::string> values = other.toVector();
-
-    for (auto it = values.rbegin(); it != values.rend(); ++it) {
-        push(*it);
+        for (auto it = values.rbegin(); it != values.rend(); ++it) {
+            push(*it);
+        }
+    } catch (...) {
+        clear();
+        throw;
     }
 }
 
@@ -91,8 +96,7 @@ void Stack::clear() noexcept {
 
 std::vector<std::string> Stack::toVector() const {
     std::vector<std::string> result;
-
-    Node* current = top_;
+    const Node* current = top_;
 
     while (current != nullptr) {
         result.push_back(current->data);

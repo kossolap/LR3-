@@ -1,0 +1,144 @@
+@startuml
+title UML-диаграмма классов C++
+skinparam classAttributeIconSize 0
+
+package "lr3" {
+
+    class Array {
+        - data_: unique_ptr<string[]>
+        - size_: size_t
+        - capacity_: size_t
+        + Array()
+        + Array(initialCapacity: size_t)
+        + pushBack(value: string)
+        + insert(index: size_t, value: string)
+        + erase(index: size_t)
+        + at(index: size_t): string
+        + set(index: size_t, value: string)
+        + size(): size_t
+        + capacity(): size_t
+        + empty(): bool
+        + clear()
+        + toVector(): vector<string>
+        + swap(other: Array)
+    }
+
+    class List {
+        - head_: Node*
+        - tail_: Node*
+        - size_: size_t
+        + pushFront(value: string)
+        + pushBack(value: string)
+        + insertBefore(target, value: string)
+        + insertAfter(target, value: string)
+        + popFront()
+        + popBack()
+        + remove(value: string): bool
+        + contains(value: string): bool
+        + front(): string
+        + back(): string
+        + size(): size_t
+        + empty(): bool
+        + clear()
+        + toVector(): vector<string>
+    }
+
+    class DList {
+        - head_: Node*
+        - tail_: Node*
+        - size_: size_t
+        + pushFront(value: string)
+        + pushBack(value: string)
+        + insertBefore(target, value: string)
+        + insertAfter(target, value: string)
+        + popFront()
+        + popBack()
+        + remove(value: string): bool
+        + contains(value: string): bool
+        + front(): string
+        + back(): string
+        + size(): size_t
+        + empty(): bool
+        + clear()
+        + toVector(): vector<string>
+        + toReverseVector(): vector<string>
+    }
+
+    class Queue {
+        - front_: Node*
+        - rear_: Node*
+        - size_: size_t
+        + push(value: string)
+        + pop(): string
+        + front(): string
+        + back(): string
+        + empty(): bool
+        + size(): size_t
+        + clear()
+        + toVector(): vector<string>
+    }
+
+    class Stack {
+        - top_: Node*
+        - size_: size_t
+        + push(value: string)
+        + pop(): string
+        + top(): string
+        + empty(): bool
+        + size(): size_t
+        + clear()
+        + toVector(): vector<string>
+    }
+
+    class HashTable {
+        - table_: vector<Entry>
+        - size_: size_t
+        + HashTable(capacity: size_t)
+        + insert(key: int, value: string)
+        + remove(key: int): bool
+        + contains(key: int): bool
+        + get(key: int): string
+        + size(): size_t
+        + capacity(): size_t
+        + empty(): bool
+        + clear()
+        + toVector(): vector<pair<int,string>>
+    }
+
+    class AVLTree {
+        - root_: Node*
+        - size_: size_t
+        + AVLTree()
+        + insert(key: string)
+        + remove(key: string): bool
+        + contains(key: string): bool
+        + size(): size_t
+        + empty(): bool
+        + height(): int
+        + clear()
+        + toVector(): vector<string>
+    }
+
+    class Serialization <<utility>> {
+        + saveBinary(filename: string, data: vector<string>)
+        + loadBinary(filename: string): vector<string>
+    }
+
+    class "List::Node" as ListNode
+    class "DList::Node" as DListNode
+    class "Queue::Node" as QueueNode
+    class "Stack::Node" as StackNode
+    class "AVLTree::Node" as AVLNode
+    class "HashTable::Entry" as HashEntry
+
+    List "1" *-- "0..*" ListNode
+    DList "1" *-- "0..*" DListNode
+    Queue "1" *-- "0..*" QueueNode
+    Stack "1" *-- "0..*" StackNode
+    AVLTree "1" *-- "0..*" AVLNode
+    HashTable "1" *-- "0..*" HashEntry
+
+    Serialization ..> Array : сохраняет данные
+}
+
+@enduml

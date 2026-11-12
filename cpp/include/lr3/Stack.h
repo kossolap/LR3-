@@ -1,3 +1,4 @@
+
 #ifndef LR3_STACK_H
 #define LR3_STACK_H
 

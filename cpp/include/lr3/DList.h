@@ -1,3 +1,4 @@
+
 #ifndef LR3_DLIST_H
 #define LR3_DLIST_H
 
@@ -30,9 +31,10 @@ class DList {
     void pushFront(const std::string& value);
     void pushBack(const std::string& value);
 
-    void insertBefore(const std::string& target, const std::string& value);
-
-    void insertAfter(const std::string& target, const std::string& value);
+    void insertBefore(const std::string& target,
+                      const std::string& value); // NOLINT(bugprone-easily-swappable-parameters)
+    void insertAfter(const std::string& target,
+                     const std::string& value); // NOLINT(bugprone-easily-swappable-parameters)
 
     void popFront();
     void popBack();

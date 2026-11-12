@@ -68,10 +68,10 @@ int main() {
     });
 
     measure("HashTable: добавление элементов", [] {
-        lr3::HashTable table;
+        lr3::HashTable table(N);
 
         for (int i = 0; i < N; ++i) {
-            table.insert(std::to_string(i), "value");
+            table.insert(i, "value");
         }
     });
 

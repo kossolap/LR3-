@@ -1,49 +1,74 @@
+
 #include "lr3/Serialization.h"
 
 #include <cstdint>
 #include <fstream>
 #include <limits>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace lr3 {
+namespace {
+
+constexpr std::uint64_t maxElements = 1'000'000;
+constexpr std::uint64_t maxStringLength = 100'000'000;
+
+} // namespace
 
 void Serialization::saveBinary(const std::string& filename, const std::vector<std::string>& data) {
-    std::ofstream file(filename, std::ios::binary);
 
-    if (!file) {
-        throw std::runtime_error("Не удалось открыть файл для записи");
+    if (data.size() > maxElements) {
+        throw std::runtime_error("Too many elements to serialize");
     }
 
-    const std::uint64_t count = data.size();
+    std::ofstream file(filename, std::ios::binary | std::ios::trunc);
 
+    if (!file) {
+        throw std::runtime_error("Cannot open file for writing: " + filename);
+    }
+
+    const auto count = static_cast<std::uint64_t>(data.size());
     file.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const std::string& value : data) {
-        const std::uint64_t length = value.size();
+    for (const auto& value : data) {
+        if (value.size() > maxStringLength) {
+            throw std::runtime_error("String is too large to serialize");
+        }
+
+        const auto length = static_cast<std::uint64_t>(value.size());
 
         file.write(reinterpret_cast<const char*>(&length), sizeof(length));
 
-        file.write(value.data(), static_cast<std::streamsize>(length));
+        if (!value.empty()) {
+            file.write(value.data(), static_cast<std::streamsize>(value.size()));
+        }
+
+        if (!file) {
+            throw std::runtime_error("Error while writing binary file");
+        }
     }
 
     if (!file) {
-        throw std::runtime_error("Ошибка записи бинарного файла");
+        throw std::runtime_error("Error while writing binary file");
     }
 }
 
 std::vector<std::string> Serialization::loadBinary(const std::string& filename) {
+
     std::ifstream file(filename, std::ios::binary);
 
     if (!file) {
-        throw std::runtime_error("Не удалось открыть файл для чтения");
+        throw std::runtime_error("Cannot open file for reading: " + filename);
     }
 
     std::uint64_t count = 0;
-
     file.read(reinterpret_cast<char*>(&count), sizeof(count));
 
-    if (!file || count > 1'000'000) {
-        throw std::runtime_error("Некорректный бинарный файл");
+    if (!file || count > maxElements ||
+        count > static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max())) {
+        throw std::runtime_error("Invalid binary file: incorrect element count");
     }
 
     std::vector<std::string> data;
@@ -51,12 +76,11 @@ std::vector<std::string> Serialization::loadBinary(const std::string& filename) 
 
     for (std::uint64_t i = 0; i < count; ++i) {
         std::uint64_t length = 0;
-
         file.read(reinterpret_cast<char*>(&length), sizeof(length));
 
-        if (!file || length > 100'000'000 ||
-            length > static_cast<std::uint64_t>(std::numeric_limits<std::streamsize>::max())) {
-            throw std::runtime_error("Некорректная длина строки");
+        if (!file || length > maxStringLength ||
+            length > static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max())) {
+            throw std::runtime_error("Invalid binary file: incorrect string length");
         }
 
         std::string value(static_cast<std::size_t>(length), '\0');
@@ -66,7 +90,7 @@ std::vector<std::string> Serialization::loadBinary(const std::string& filename) 
         }
 
         if (!file) {
-            throw std::runtime_error("Ошибка чтения бинарного файла");
+            throw std::runtime_error("Invalid binary file: unexpected end of file");
         }
 
         data.push_back(std::move(value));

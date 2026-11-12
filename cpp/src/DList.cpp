@@ -1,3 +1,4 @@
+
 #include "lr3/DList.h"
 
 #include <stdexcept>
@@ -9,12 +10,16 @@ DList::Node::Node(const std::string& value) : data(value), next(nullptr), prev(n
 DList::DList() : head_(nullptr), tail_(nullptr), size_(0) {}
 
 DList::DList(const DList& other) : DList() {
+    try {
+        Node* current = other.head_;
 
-    Node* current = other.head_;
-
-    while (current != nullptr) {
-        pushBack(current->data);
-        current = current->next;
+        while (current != nullptr) {
+            pushBack(current->data);
+            current = current->next;
+        }
+    } catch (...) {
+        clear();
+        throw;
     }
 }
 
@@ -42,7 +47,7 @@ DList::~DList() {
 }
 
 void DList::pushFront(const std::string& value) {
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->next = head_;
 
@@ -57,7 +62,7 @@ void DList::pushFront(const std::string& value) {
 }
 
 void DList::pushBack(const std::string& value) {
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->prev = tail_;
 
@@ -71,7 +76,8 @@ void DList::pushBack(const std::string& value) {
     ++size_;
 }
 
-void DList::insertBefore(const std::string& target, const std::string& value) {
+void DList::insertBefore(const std::string& target,
+                         const std::string& value) { // NOLINT(bugprone-easily-swappable-parameters)
     Node* current = head_;
 
     while (current != nullptr && current->data != target) {
@@ -87,7 +93,7 @@ void DList::insertBefore(const std::string& target, const std::string& value) {
         return;
     }
 
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->prev = current->prev;
     newNode->next = current;
@@ -98,7 +104,8 @@ void DList::insertBefore(const std::string& target, const std::string& value) {
     ++size_;
 }
 
-void DList::insertAfter(const std::string& target, const std::string& value) {
+void DList::insertAfter(const std::string& target,
+                        const std::string& value) { // NOLINT(bugprone-easily-swappable-parameters)
     Node* current = head_;
 
     while (current != nullptr && current->data != target) {
@@ -114,7 +121,7 @@ void DList::insertAfter(const std::string& target, const std::string& value) {
         return;
     }
 
-    Node* newNode = new Node(value);
+    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
 
     newNode->next = current->next;
     newNode->prev = current;
@@ -139,7 +146,7 @@ void DList::popFront() {
         tail_ = nullptr;
     }
 
-    delete oldHead;
+    delete oldHead; // NOLINT(cppcoreguidelines-owning-memory)
     --size_;
 }
 
@@ -157,7 +164,7 @@ void DList::popBack() {
         head_ = nullptr;
     }
 
-    delete oldTail;
+    delete oldTail; // NOLINT(cppcoreguidelines-owning-memory)
     --size_;
 }
 
@@ -185,7 +192,7 @@ bool DList::remove(const std::string& value) {
     current->prev->next = current->next;
     current->next->prev = current->prev;
 
-    delete current;
+    delete current; // NOLINT(cppcoreguidelines-owning-memory)
     --size_;
 
     return true;
@@ -232,7 +239,7 @@ bool DList::empty() const noexcept {
 void DList::clear() noexcept {
     while (head_ != nullptr) {
         Node* nextNode = head_->next;
-        delete head_;
+        delete head_; // NOLINT(cppcoreguidelines-owning-memory)
         head_ = nextNode;
     }
 

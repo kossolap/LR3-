@@ -2,6 +2,7 @@
 #define LR3_HASH_TABLE_H
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
@@ -10,42 +11,45 @@ namespace lr3 {
 
 class HashTable {
   public:
-    static constexpr std::size_t defaultCapacity = 8;
+    static constexpr std::size_t defaultCapacity = 11;
 
     explicit HashTable(std::size_t capacity = defaultCapacity);
 
-    HashTable(const HashTable& other);
-    HashTable& operator=(const HashTable& other);
-    ~HashTable();
+    void insert(int key, const std::string& value);
+    bool remove(int key);
 
-    void insert(const std::string& key, const std::string& value);
-    bool remove(const std::string& key);
-
-    bool contains(const std::string& key) const;
-    std::string get(const std::string& key) const;
+    bool contains(int key) const;
+    std::string get(int key) const;
 
     std::size_t size() const noexcept;
+    std::size_t capacity() const noexcept;
     bool empty() const noexcept;
 
     void clear() noexcept;
 
-    std::vector<std::pair<std::string, std::string>> toVector() const;
+    std::vector<std::pair<int, std::string>> toVector() const;
 
   private:
-    struct Node {
-        std::string key;
-        std::string value;
-        Node* next;
+    enum class State { Empty, Occupied, Deleted };
 
-        // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-        Node(const std::string& keyValue, const std::string& dataValue);
+    struct Entry {
+        int key = 0;
+        std::string value;
+        State state = State::Empty;
     };
 
-    std::vector<Node*> buckets_;
+    std::vector<Entry> table_;
     std::size_t size_;
 
-    std::size_t hash(const std::string& key) const;
-    void rehash();
+    static std::uint64_t foldingHash(int key) noexcept;
+    std::size_t primaryHash(int key) const noexcept;
+    std::size_t secondaryHash(int key) const noexcept;
+
+    std::size_t findIndex(int key) const noexcept;
+    std::size_t findInsertionIndex(int key) const noexcept;
+
+    static bool isPrime(std::size_t number) noexcept;
+    static std::size_t nextPrime(std::size_t number);
 };
 
 } // namespace lr3

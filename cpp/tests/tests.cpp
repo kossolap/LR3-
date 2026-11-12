@@ -1,3 +1,4 @@
+
 #include "lr3/AVLTree.h"
 #include "lr3/Array.h"
 #include "lr3/DList.h"
@@ -10,6 +11,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <cstdio>
 #include <functional>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -189,13 +191,11 @@ TEST_CASE("List exceptions and empty operations", "[list]") {
     REQUIRE_THROWS_AS(list.back(), std::out_of_range);
 
     REQUIRE_THROWS_AS(list.insertBefore("X", "Y"), std::out_of_range);
-
     REQUIRE_THROWS_AS(list.insertAfter("X", "Y"), std::out_of_range);
 
     list.pushBack("A");
 
     REQUIRE_THROWS_AS(list.insertBefore("Missing", "B"), std::out_of_range);
-
     REQUIRE_THROWS_AS(list.insertAfter("Missing", "B"), std::out_of_range);
 }
 
@@ -281,13 +281,11 @@ TEST_CASE("DList exceptions and empty operations", "[dlist]") {
     REQUIRE_THROWS_AS(list.back(), std::out_of_range);
 
     REQUIRE_THROWS_AS(list.insertBefore("X", "Y"), std::out_of_range);
-
     REQUIRE_THROWS_AS(list.insertAfter("X", "Y"), std::out_of_range);
 
     list.pushBack("A");
 
     REQUIRE_THROWS_AS(list.insertBefore("Missing", "B"), std::out_of_range);
-
     REQUIRE_THROWS_AS(list.insertAfter("Missing", "B"), std::out_of_range);
 }
 
@@ -435,82 +433,159 @@ TEST_CASE("HashTable operations and exceptions", "[hash]") {
     HashTable table;
 
     REQUIRE(table.empty());
-    REQUIRE_FALSE(table.contains("missing"));
-    REQUIRE_FALSE(table.remove("missing"));
+    REQUIRE(table.size() == 0);
+    REQUIRE(table.capacity() >= 2);
 
-    REQUIRE_THROWS_AS(table.get("missing"), std::out_of_range);
+    REQUIRE_FALSE(table.contains(999));
+    REQUIRE_FALSE(table.remove(999));
+    REQUIRE_THROWS_AS(table.get(999), std::out_of_range);
 
-    table.insert("name", "Alex");
-    table.insert("city", "Moscow");
-    table.insert("language", "C++");
+    table.insert(101, "Alex");
+    table.insert(202, "Moscow");
+    table.insert(303, "C++");
 
     REQUIRE(table.size() == 3);
-    REQUIRE(table.get("name") == "Alex");
+    REQUIRE(table.get(101) == "Alex");
+    REQUIRE(table.get(202) == "Moscow");
+    REQUIRE(table.get(303) == "C++");
 
-    table.insert("name", "Diana");
+    // Повторная вставка обновляет значение, но не увеличивает размер.
+    table.insert(101, "Diana");
 
-    REQUIRE(table.get("name") == "Diana");
+    REQUIRE(table.get(101) == "Diana");
     REQUIRE(table.size() == 3);
 
-    REQUIRE(table.remove("city"));
-    REQUIRE_FALSE(table.contains("city"));
-    REQUIRE_FALSE(table.remove("city"));
-
+    REQUIRE(table.remove(202));
+    REQUIRE_FALSE(table.contains(202));
+    REQUIRE_FALSE(table.remove(202));
     REQUIRE(table.size() == 2);
 
     table.clear();
-    REQUIRE(table.empty());
 
-    table.insert("new", "value");
-    REQUIRE(table.get("new") == "value");
+    REQUIRE(table.empty());
+    REQUIRE(table.size() == 0);
+
+    // После очистки таблица должна оставаться пригодной для использования.
+    table.insert(404, "New value");
+    REQUIRE(table.get(404) == "New value");
+
+    // Проверка отрицательного ключа и минимального значения int.
+    table.insert(-123, "Negative");
+    table.insert(std::numeric_limits<int>::min(), "Minimum integer");
+
+    REQUIRE(table.get(-123) == "Negative");
+    REQUIRE(table.get(std::numeric_limits<int>::min()) == "Minimum integer");
 }
 
-TEST_CASE("HashTable rehashing", "[hash]") {
-    HashTable table(2);
+TEST_CASE("HashTable collision handling and deleted slots", "[hash]") {
+    HashTable table(5);
 
-    for (int i = 0; i < 30; ++i) {
-        std::string key = "key" + std::to_string(i);
-        std::string value = "value" + std::to_string(i);
+    REQUIRE(table.capacity() == 5);
 
-        table.insert(key, value);
+    // Ключи 1 и 6 имеют одинаковый первичный хеш при ёмкости 5.
+    table.insert(1, "First");
+    table.insert(6, "Second");
+
+    REQUIRE(table.size() == 2);
+    REQUIRE(table.get(1) == "First");
+    REQUIRE(table.get(6) == "Second");
+
+    // Удаление первого элемента не должно нарушать поиск второго.
+    REQUIRE(table.remove(1));
+
+    REQUIRE_FALSE(table.contains(1));
+    REQUIRE(table.contains(6));
+    REQUIRE(table.get(6) == "Second");
+
+    // Удалённая ячейка должна повторно использоваться при вставке.
+    table.insert(11, "Third");
+
+    REQUIRE(table.size() == 2);
+    REQUIRE(table.get(6) == "Second");
+    REQUIRE(table.get(11) == "Third");
+
+    // Обновление существующего ключа после коллизий.
+    table.insert(6, "Updated");
+
+    REQUIRE(table.get(6) == "Updated");
+    REQUIRE(table.size() == 2);
+}
+
+TEST_CASE("HashTable fixed capacity and overflow", "[hash]") {
+    HashTable table(5);
+
+    REQUIRE(table.capacity() == 5);
+
+    for (int i = 0; i < 5; ++i) {
+        table.insert(i, "value" + std::to_string(i));
     }
 
-    REQUIRE(table.size() == 30);
+    REQUIRE(table.size() == 5);
+    REQUIRE(table.capacity() == 5);
 
-    for (int i = 0; i < 30; ++i) {
-        std::string key = "key" + std::to_string(i);
-        std::string value = "value" + std::to_string(i);
-
-        REQUIRE(table.contains(key));
-        REQUIRE(table.get(key) == value);
+    for (int i = 0; i < 5; ++i) {
+        REQUIRE(table.contains(i));
+        REQUIRE(table.get(i) == "value" + std::to_string(i));
     }
+
+    // Фиксированная таблица не должна автоматически увеличивать ёмкость.
+    REQUIRE_THROWS_AS(table.insert(100, "overflow"), std::overflow_error);
+
+    REQUIRE(table.size() == 5);
+    REQUIRE(table.capacity() == 5);
+
+    // После удаления элемента освободившаяся ячейка должна использоваться повторно.
+    REQUIRE(table.remove(2));
+    REQUIRE(table.size() == 4);
+
+    table.insert(100, "replacement");
+
+    REQUIRE(table.size() == 5);
+    REQUIRE(table.capacity() == 5);
+    REQUIRE(table.get(100) == "replacement");
+    REQUIRE_FALSE(table.contains(2));
 }
 
 TEST_CASE("HashTable copying and assignment", "[hash]") {
-    HashTable table;
+    HashTable table(7);
 
-    table.insert("A", "1");
-    table.insert("B", "2");
+    table.insert(10, "One");
+    table.insert(20, "Two");
 
     HashTable copied(table);
-    REQUIRE(copied.get("A") == "1");
+
+    REQUIRE(copied.size() == 2);
+    REQUIRE(copied.capacity() == table.capacity());
+    REQUIRE(copied.get(10) == "One");
+    REQUIRE(copied.get(20) == "Two");
+
+    // Изменение копии не должно менять исходную таблицу.
+    copied.insert(30, "Three");
+
+    REQUIRE(copied.size() == 3);
+    REQUIRE(table.size() == 2);
+    REQUIRE_FALSE(table.contains(30));
 
     HashTable assigned;
+    assigned.insert(999, "Old");
     assigned = table;
 
     REQUIRE(assigned.size() == 2);
+    REQUIRE(assigned.get(10) == "One");
+    REQUIRE(assigned.get(20) == "Two");
 
     assigned = assigned;
-    REQUIRE(assigned.size() == 2);
 
-    copied.insert("C", "3");
-    REQUIRE(table.size() == 2);
+    REQUIRE(assigned.size() == 2);
+    REQUIRE(assigned.get(10) == "One");
 
     HashTable emptyTable;
     HashTable emptyCopy(emptyTable);
+
     REQUIRE(emptyCopy.empty());
 
     assigned = emptyTable;
+
     REQUIRE(assigned.empty());
 }
 
@@ -694,4 +769,77 @@ TEST_CASE("Serialization handles empty data", "[serialization]") {
 TEST_CASE("Serialization throws for missing file", "[serialization]") {
     REQUIRE_THROWS_AS(Serialization::loadBinary("file_that_does_not_exist.bin"),
                       std::runtime_error);
+}
+
+// ==================== ADDITIONAL LIST TESTS ====================
+
+TEST_CASE("List insertBefore at head", "[list]") {
+    List list;
+
+    list.pushBack("B");
+    list.pushBack("C");
+
+    list.insertBefore("B", "A");
+
+    REQUIRE(list.toVector() == std::vector<std::string>{"A", "B", "C"});
+    REQUIRE(list.front() == "A");
+    REQUIRE(list.size() == 3);
+}
+
+TEST_CASE("List popBack edge cases", "[list]") {
+    SECTION("Remove the only element") {
+        List list;
+        list.pushBack("A");
+
+        list.popBack();
+
+        REQUIRE(list.empty());
+        REQUIRE(list.size() == 0);
+    }
+
+    SECTION("Remove the last element from multiple elements") {
+        List list;
+        list.pushBack("A");
+        list.pushBack("B");
+        list.pushBack("C");
+
+        list.popBack();
+
+        REQUIRE(list.toVector() == std::vector<std::string>{"A", "B"});
+        REQUIRE(list.back() == "B");
+        REQUIRE(list.size() == 2);
+    }
+}
+
+TEST_CASE("List contains and remove traversal", "[list]") {
+    List list;
+
+    list.pushBack("A");
+    list.pushBack("B");
+    list.pushBack("C");
+    list.pushBack("D");
+
+    REQUIRE(list.contains("A"));
+    REQUIRE(list.contains("B"));
+    REQUIRE(list.contains("D"));
+    REQUIRE_FALSE(list.contains("Missing"));
+
+    REQUIRE(list.remove("C"));
+
+    REQUIRE(list.toVector() == std::vector<std::string>{"A", "B", "D"});
+    REQUIRE_FALSE(list.contains("C"));
+
+    REQUIRE(list.remove("D"));
+
+    REQUIRE(list.toVector() == std::vector<std::string>{"A", "B"});
+}
+
+TEST_CASE("List toVector on empty list", "[list]") {
+    List list;
+
+    REQUIRE(list.toVector().empty());
+
+    list.pushBack("A");
+
+    REQUIRE(list.toVector() == std::vector<std::string>{"A"});
 }

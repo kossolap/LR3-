@@ -1,0 +1,175 @@
+@startuml
+title Лабораторная работа №3 — диаграмма классов структур данных
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "Структуры данных" {
+
+    class Array {
+        - data: string[]
+        + PushBack(value)
+        + Insert(index, value)
+        + RemoveAt(index)
+        + Set(index, value)
+        + GetAt(index)
+        + Get()
+        + Size()
+        + Empty()
+        + Clear()
+    }
+
+    class LinkedList {
+        + Head: FNode
+        + Tail: FNode
+        + PushFront(value)
+        + PushBack(value)
+        + PopFront()
+        + PopBack()
+        + InsertBeforeValue(target, value)
+        + InsertAfterValue(target, value)
+        + RemoveValue(value)
+        + Find(value)
+        + Get()
+        + Clear()
+    }
+
+    class FNode {
+        + Data: string
+        + Next: FNode
+    }
+
+    class DoubleLinkedList {
+        + Head: DNode
+        + Tail: DNode
+        + PushFront(value)
+        + PushBack(value)
+        + PopFront()
+        + PopBack()
+        + InsertBeforeValue(target, value)
+        + InsertAfterValue(target, value)
+        + RemoveValue(value)
+        + Find(value)
+        + Get()
+        + GetReverse()
+        + Clear()
+    }
+
+    class DNode {
+        + Data: string
+        + Next: DNode
+        + Prev: DNode
+    }
+
+    class Queue {
+        - Head: QNode
+        - Tail: QNode
+        + Push(value)
+        + Pop()
+        + Get()
+        + Empty()
+        + Clear()
+    }
+
+    class QNode {
+        + Data: string
+        + Next: QNode
+    }
+
+    class Stack {
+        - Top: SNode
+        + Push(value)
+        + Pop()
+        + Get()
+        + Empty()
+        + Clear()
+    }
+
+    class SNode {
+        + Data: string
+        + Next: SNode
+    }
+
+    class HashTable {
+        - table: hashEntry[]
+        - size: int
+        + Insert(key, value)
+        + Get(key)
+        + Contains(key)
+        + Remove(key)
+        + Size()
+        + Capacity()
+        + Entries()
+        + Clear()
+    }
+
+    class AVLTree {
+        - Root: AVLNode
+        - size: int
+        + Insert(key)
+        + Remove(key)
+        + Find(key)
+        + Size()
+        + Empty()
+        + Clear()
+        + Inorder()
+        + Preorder()
+        + Postorder()
+    }
+
+    class AVLNode {
+        + Key: int
+        + Left: AVLNode
+        + Right: AVLNode
+        + Height: int
+    }
+
+    LinkedList "1" *-- "0..*" FNode
+    DoubleLinkedList "1" *-- "0..*" DNode
+    Queue "1" *-- "0..*" QNode
+    Stack "1" *-- "0..*" SNode
+    AVLTree "1" *-- "0..*" AVLNode
+}
+
+package "Сериализация JSON (Go)" {
+
+    class Data {
+        + Array: Array
+        + List: LinkedList
+        + DList: DoubleLinkedList
+        + Queue: Queue
+        + Stack: Stack
+        + HashTable: HashTable
+        + AVLTree: AVLTree
+    }
+
+    class JSONSerializer {
+        + Serialize(data): bytes, error
+        + Deserialize(bytes): Data, error
+    }
+
+    Data o-- Array
+    Data o-- LinkedList
+    Data o-- DoubleLinkedList
+    Data o-- Queue
+    Data o-- Stack
+    Data o-- HashTable
+    Data o-- AVLTree
+
+    JSONSerializer ..> Data : сериализация
+}
+
+note bottom of HashTable
+  Разрешение коллизий:
+  двойное хеширование.
+  Ключи — целые числа,
+  значения — строки.
+end note
+
+note bottom of AVLTree
+  Самобалансирующееся
+  бинарное дерево поиска.
+  Ключи — целые числа.
+end note
+
+@enduml

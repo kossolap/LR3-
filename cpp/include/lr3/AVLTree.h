@@ -1,3 +1,4 @@
+
 #ifndef LR3_AVL_TREE_H
 #define LR3_AVL_TREE_H
 
@@ -21,13 +22,13 @@ class AVLTree {
     Node* root_;
     std::size_t size_;
 
-    int height(Node* node) const;
-    int balanceFactor(Node* node) const;
-    void updateHeight(Node* node);
+    static int nodeHeight(const Node* node) noexcept;
+    static int balanceFactor(Node* node);
+    static void updateHeight(Node* node);
 
-    Node* rotateRight(Node* node);
-    Node* rotateLeft(Node* node);
-    Node* balance(Node* node);
+    static Node* rotateRight(Node* node);
+    static Node* rotateLeft(Node* node);
+    static Node* balance(Node* node);
 
     Node* insert(Node* node, const std::string& key);
     Node* remove(Node* node, const std::string& key);

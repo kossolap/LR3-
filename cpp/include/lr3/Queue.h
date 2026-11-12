@@ -1,3 +1,4 @@
+
 #ifndef LR3_QUEUE_H
 #define LR3_QUEUE_H
 

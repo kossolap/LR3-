@@ -1,3 +1,4 @@
+
 #include "lr3/Queue.h"
 
 #include <stdexcept>
@@ -9,12 +10,16 @@ Queue::Node::Node(const std::string& value) : data(value), next(nullptr) {}
 Queue::Queue() : front_(nullptr), rear_(nullptr), size_(0) {}
 
 Queue::Queue(const Queue& other) : Queue() {
+    try {
+        const Node* current = other.front_;
 
-    Node* current = other.front_;
-
-    while (current != nullptr) {
-        push(current->data);
-        current = current->next;
+        while (current != nullptr) {
+            push(current->data);
+            current = current->next;
+        }
+    } catch (...) {
+        clear();
+        throw;
     }
 }
 
@@ -112,8 +117,7 @@ void Queue::clear() noexcept {
 
 std::vector<std::string> Queue::toVector() const {
     std::vector<std::string> result;
-
-    Node* current = front_;
+    const Node* current = front_;
 
     while (current != nullptr) {
         result.push_back(current->data);
