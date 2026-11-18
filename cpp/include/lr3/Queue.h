@@ -3,6 +3,7 @@
 #define LR3_QUEUE_H
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,12 +13,12 @@ class Queue {
   private:
     struct Node {
         std::string data;
-        Node* next;
+        std::unique_ptr<Node> next;
 
         explicit Node(const std::string& value);
     };
 
-    Node* front_;
+    std::unique_ptr<Node> front_;
     Node* rear_;
     std::size_t size_;
 

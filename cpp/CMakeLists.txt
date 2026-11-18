@@ -41,7 +41,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(lr3_tests tests/tests.cpp)
+add_executable(lr3_tests
+    tests/tests.cpp
+    tests/serialization_tests.cpp
+)
+
 target_link_libraries(lr3_tests PRIVATE
     lr3_structures
     Catch2::Catch2WithMain

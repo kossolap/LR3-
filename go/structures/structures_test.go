@@ -78,7 +78,7 @@ func TestLinkedList(t *testing.T) {
 	if _, ok := l.PopBack(); ok {
 		t.Fatal("PopBack пустого списка должен вернуть false")
 	}
-	if l.Index(0) != nil || l.Find("x") != -1 {
+	if _, ok := l.Index(0); ok || l.Find("x") != -1 {
 		t.Fatal("неверный результат поиска в пустом списке")
 	}
 	if l.InsertBeforeValue("missing", "x") ||
@@ -99,11 +99,14 @@ func TestLinkedList(t *testing.T) {
 	if l.Size() != 3 || l.Empty() {
 		t.Fatal("неверные Size или Empty")
 	}
-	if l.Index(-1) != nil || l.Index(3) != nil {
-		t.Fatal("Index должен возвращать nil для неверного индекса")
+	if _, ok := l.Index(-1); ok {
+		t.Fatal("Index принял отрицательный индекс")
 	}
-	if node := l.Index(1); node == nil || node.Data != "b" {
-		t.Fatal("неверный результат Index")
+	if _, ok := l.Index(3); ok {
+		t.Fatal("Index принял индекс за границей списка")
+	}
+	if value, ok := l.Index(1); !ok || value != "b" {
+		t.Fatalf("неверный результат Index: %q, %v", value, ok)
 	}
 	if l.Find("d") != 2 || l.Find("missing") != -1 {
 		t.Fatal("неверный результат Find")
@@ -128,6 +131,9 @@ func TestLinkedList(t *testing.T) {
 	if !reflect.DeepEqual(l.GetBeforeValue("b"), []string{"a", "before"}) {
 		t.Fatalf("неверный GetBeforeValue: %v", l.GetBeforeValue("b"))
 	}
+	if l.GetBeforeValue("missing") != nil || len(l.GetAfterValue("missing")) != 0 {
+		t.Fatal("неверный результат получения соседних элементов для отсутствующего значения")
+	}
 
 	if !l.RemoveBeforeValue("b") {
 		t.Fatal("RemoveBeforeValue не сработал")
@@ -148,14 +154,18 @@ func TestLinkedList(t *testing.T) {
 	if value, ok := l.PopBack(); !ok || value != "b" {
 		t.Fatalf("неверный PopBack: %q, %v", value, ok)
 	}
-	if !l.Empty() {
+	if !l.Empty() || l.Size() != 0 {
 		t.Fatal("список должен стать пустым")
 	}
 
 	l.PushBack("clear")
 	l.Clear()
-	if !l.Empty() || l.Head != nil || l.Tail != nil {
+	if !l.Empty() || l.Size() != 0 || len(l.Get()) != 0 {
 		t.Fatal("Clear не очистил список")
+	}
+	l.PushBack("after-clear")
+	if !reflect.DeepEqual(l.Get(), []string{"after-clear"}) {
+		t.Fatal("список некорректно работает после Clear")
 	}
 }
 
@@ -171,7 +181,7 @@ func TestDoubleLinkedList(t *testing.T) {
 	if _, ok := d.PopBack(); ok {
 		t.Fatal("PopBack пустого списка должен вернуть false")
 	}
-	if d.Index(0) != nil || d.Find("x") != -1 {
+	if _, ok := d.Index(0); ok || d.Find("x") != -1 {
 		t.Fatal("неверный поиск в пустом списке")
 	}
 	if d.InsertBeforeValue("missing", "x") ||
@@ -195,11 +205,14 @@ func TestDoubleLinkedList(t *testing.T) {
 	if d.Size() != 3 || d.Empty() {
 		t.Fatal("неверные Size или Empty")
 	}
-	if d.Index(-1) != nil || d.Index(3) != nil {
-		t.Fatal("Index должен возвращать nil для неверного индекса")
+	if _, ok := d.Index(-1); ok {
+		t.Fatal("Index принял отрицательный индекс")
 	}
-	if node := d.Index(1); node == nil || node.Data != "b" {
-		t.Fatal("неверный результат Index")
+	if _, ok := d.Index(3); ok {
+		t.Fatal("Index принял индекс за границей списка")
+	}
+	if value, ok := d.Index(1); !ok || value != "b" {
+		t.Fatalf("неверный результат Index: %q, %v", value, ok)
 	}
 	if d.Find("d") != 2 || d.Find("missing") != -1 {
 		t.Fatal("неверный результат Find")
@@ -217,6 +230,9 @@ func TestDoubleLinkedList(t *testing.T) {
 	}
 	if !reflect.DeepEqual(d.GetBeforeValue("b"), []string{"a", "before"}) {
 		t.Fatalf("неверный GetBeforeValue: %v", d.GetBeforeValue("b"))
+	}
+	if d.GetBeforeValue("missing") != nil || len(d.GetAfterValue("missing")) != 0 {
+		t.Fatal("неверный результат получения соседних элементов для отсутствующего значения")
 	}
 
 	if d.InsertBeforeValue("missing", "x") || d.InsertAfterValue("missing", "x") {
@@ -238,14 +254,18 @@ func TestDoubleLinkedList(t *testing.T) {
 	if value, ok := d.PopBack(); !ok || value != "b" {
 		t.Fatalf("неверный PopBack: %q, %v", value, ok)
 	}
-	if !d.Empty() {
+	if !d.Empty() || d.Size() != 0 {
 		t.Fatal("список должен быть пустым")
 	}
 
 	d.PushBack("clear")
 	d.Clear()
-	if !d.Empty() || d.Head != nil || d.Tail != nil {
+	if !d.Empty() || d.Size() != 0 || len(d.GetReverse()) != 0 {
 		t.Fatal("Clear не очистил двусвязный список")
+	}
+	d.PushBack("after-clear")
+	if !reflect.DeepEqual(d.Get(), []string{"after-clear"}) {
+		t.Fatal("список некорректно работает после Clear")
 	}
 }
 
@@ -285,8 +305,12 @@ func TestQueue(t *testing.T) {
 
 	q.Push("again")
 	q.Clear()
-	if !q.Empty() || q.Head != nil || q.Tail != nil {
+	if !q.Empty() || q.Size() != 0 || len(q.Get()) != 0 {
 		t.Fatal("Clear не очистил очередь")
+	}
+	q.Push("after-clear")
+	if !reflect.DeepEqual(q.Get(), []string{"after-clear"}) {
+		t.Fatal("очередь некорректно работает после Clear")
 	}
 }
 
@@ -326,8 +350,12 @@ func TestStack(t *testing.T) {
 
 	s.Push("again")
 	s.Clear()
-	if !s.Empty() || s.Head != nil {
+	if !s.Empty() || s.Size() != 0 || len(s.Get()) != 0 {
 		t.Fatal("Clear не очистил стек")
+	}
+	s.Push("after-clear")
+	if !reflect.DeepEqual(s.Get(), []string{"after-clear"}) {
+		t.Fatal("стек некорректно работает после Clear")
 	}
 }
 
@@ -341,17 +369,19 @@ func TestAVLTree(t *testing.T) {
 		t.Fatal("удаление из пустого дерева должно вернуть false")
 	}
 
-	// Последовательность проверяет балансировку и вращения AVL.
 	for _, key := range []int{30, 20, 10, 25, 28, 27, 40, 50, 45, 5, 4} {
 		tree.Insert(key)
 	}
-	tree.Insert(30) // повторный ключ не должен увеличивать размер.
+	tree.Insert(30)
 
 	if tree.Size() != 11 {
 		t.Fatalf("неверный размер дерева: %d", tree.Size())
 	}
 	if !tree.Find(30) || !tree.Find(4) || tree.Find(999) {
 		t.Fatal("неверная работа Find")
+	}
+	if !tree.Validate() {
+		t.Fatal("нарушены свойства AVL-дерева после вставок")
 	}
 
 	inorder := tree.Inorder()
@@ -364,31 +394,10 @@ func TestAVLTree(t *testing.T) {
 		t.Fatal("обходы дерева должны содержать все узлы")
 	}
 
-	// Проверка высот и баланса каждого узла.
-	var checkBalance func(*AVLNode) int
-	checkBalance = func(node *AVLNode) int {
-		if node == nil {
-			return 0
-		}
-		leftHeight := checkBalance(node.Left)
-		rightHeight := checkBalance(node.Right)
-		if difference := leftHeight - rightHeight; difference < -1 || difference > 1 {
-			t.Errorf("нарушен AVL-баланс у ключа %d: разница высот %d", node.Key, difference)
-		}
-		expectedHeight := leftHeight + 1
-		if rightHeight > leftHeight {
-			expectedHeight = rightHeight + 1
-		}
-		if node.Height != expectedHeight {
-			t.Errorf("неверная высота узла %d: %d вместо %d", node.Key, node.Height, expectedHeight)
-		}
-		return expectedHeight
-	}
-	checkBalance(tree.Root)
-
 	if tree.Remove(999) {
 		t.Fatal("удаление отсутствующего ключа должно вернуть false")
 	}
+
 	for _, key := range []int{4, 5, 20, 30, 40} {
 		if !tree.Remove(key) {
 			t.Errorf("не удалось удалить ключ %d", key)
@@ -396,14 +405,17 @@ func TestAVLTree(t *testing.T) {
 		if tree.Find(key) {
 			t.Errorf("ключ %d остался в дереве после удаления", key)
 		}
-		checkBalance(tree.Root)
+		if !tree.Validate() {
+			t.Errorf("нарушены свойства AVL-дерева после удаления %d", key)
+		}
 	}
+
 	if tree.Size() != 6 {
 		t.Fatalf("неверный размер после удаления: %d", tree.Size())
 	}
 
 	tree.Clear()
-	if !tree.Empty() || tree.Size() != 0 || len(tree.Inorder()) != 0 {
+	if !tree.Empty() || tree.Size() != 0 || len(tree.Inorder()) != 0 || !tree.Validate() {
 		t.Fatal("Clear не очистил дерево")
 	}
 }
@@ -426,8 +438,13 @@ func TestAVLRotations(t *testing.T) {
 			for _, key := range test.keys {
 				tree.Insert(key)
 			}
-			if tree.Root == nil || tree.Root.Key != test.root {
-				t.Fatalf("ожидался корень %d, получено %v", test.root, tree.Root)
+
+			preorder := tree.Preorder()
+			if len(preorder) == 0 || preorder[0] != test.root {
+				t.Fatalf("ожидался корень %d, обход: %v", test.root, preorder)
+			}
+			if !tree.Validate() {
+				t.Fatal("нарушены свойства AVL-дерева после поворота")
 			}
 		})
 	}
@@ -436,7 +453,7 @@ func TestAVLRotations(t *testing.T) {
 func TestHashTable(t *testing.T) {
 	table := NewHashTable(5)
 
-	if table.Empty() == false || table.Size() != 0 {
+	if !table.Empty() || table.Size() != 0 {
 		t.Fatal("новая хеш-таблица должна быть пустой")
 	}
 	if table.Capacity() < 5 || !isPrime(table.Capacity()) {
@@ -496,7 +513,6 @@ func TestHashTableCollisionsAndFull(t *testing.T) {
 	table := NewHashTable(3)
 	capacity := table.Capacity()
 
-	// Подбираем ключи с одинаковым начальным индексом.
 	keys := make([]int, 0, capacity)
 	targetIndex := table.primaryHash(0)
 	for key := 0; len(keys) < capacity && key < 100000; key++ {
@@ -520,7 +536,6 @@ func TestHashTableCollisionsAndFull(t *testing.T) {
 		t.Fatalf("ожидалась ErrTableFull, получено: %v", err)
 	}
 
-	// Удаление оставляет tombstone; поиск и повторная вставка должны работать.
 	if !table.Remove(keys[0]) {
 		t.Fatal("не удалось удалить ключ из заполненной таблицы")
 	}

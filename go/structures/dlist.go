@@ -1,14 +1,14 @@
 package structures
 
-type DNode struct {
-	Data string
-	Next *DNode
-	Prev *DNode
+type dNode struct {
+	data string
+	next *dNode
+	prev *dNode
 }
 
 type DoubleLinkedList struct {
-	Head *DNode
-	Tail *DNode
+	head *dNode
+	tail *dNode
 }
 
 func NewDoubleLinkedList() *DoubleLinkedList {
@@ -16,44 +16,44 @@ func NewDoubleLinkedList() *DoubleLinkedList {
 }
 
 func (d *DoubleLinkedList) Empty() bool {
-	return d.Head == nil
+	return d.head == nil
 }
 
 func (d *DoubleLinkedList) Size() int {
 	count := 0
-	for current := d.Head; current != nil; current = current.Next {
+	for current := d.head; current != nil; current = current.next {
 		count++
 	}
 	return count
 }
 
 func (d *DoubleLinkedList) Clear() {
-	d.Head = nil
-	d.Tail = nil
+	d.head = nil
+	d.tail = nil
 }
 
 func (d *DoubleLinkedList) PushFront(value string) {
-	node := &DNode{Data: value, Next: d.Head}
+	node := &dNode{data: value, next: d.head}
 
-	if d.Head == nil {
-		d.Tail = node
+	if d.head == nil {
+		d.tail = node
 	} else {
-		d.Head.Prev = node
+		d.head.prev = node
 	}
 
-	d.Head = node
+	d.head = node
 }
 
 func (d *DoubleLinkedList) PushBack(value string) {
-	node := &DNode{Data: value, Prev: d.Tail}
+	node := &dNode{data: value, prev: d.tail}
 
-	if d.Tail == nil {
-		d.Head = node
+	if d.tail == nil {
+		d.head = node
 	} else {
-		d.Tail.Next = node
+		d.tail.next = node
 	}
 
-	d.Tail = node
+	d.tail = node
 }
 
 func (d *DoubleLinkedList) PopFront() (string, bool) {
@@ -61,13 +61,13 @@ func (d *DoubleLinkedList) PopFront() (string, bool) {
 		return "", false
 	}
 
-	value := d.Head.Data
-	d.Head = d.Head.Next
+	value := d.head.data
+	d.head = d.head.next
 
-	if d.Head == nil {
-		d.Tail = nil
+	if d.head == nil {
+		d.tail = nil
 	} else {
-		d.Head.Prev = nil
+		d.head.prev = nil
 	}
 
 	return value, true
@@ -78,45 +78,49 @@ func (d *DoubleLinkedList) PopBack() (string, bool) {
 		return "", false
 	}
 
-	value := d.Tail.Data
-	d.Tail = d.Tail.Prev
+	value := d.tail.data
+	d.tail = d.tail.prev
 
-	if d.Tail == nil {
-		d.Head = nil
+	if d.tail == nil {
+		d.head = nil
 	} else {
-		d.Tail.Next = nil
+		d.tail.next = nil
 	}
 
 	return value, true
 }
 
-func (d *DoubleLinkedList) Index(index int) *DNode {
+func (d *DoubleLinkedList) Index(index int) (string, bool) {
 	if index < 0 {
-		return nil
+		return "", false
 	}
 
-	current := d.Head
+	current := d.head
 	for i := 0; current != nil && i < index; i++ {
-		current = current.Next
+		current = current.next
 	}
-	return current
+
+	if current == nil {
+		return "", false
+	}
+	return current.data, true
 }
 
 func (d *DoubleLinkedList) InsertBeforeValue(target, value string) bool {
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == target {
-			if current == d.Head {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == target {
+			if current == d.head {
 				d.PushFront(value)
 				return true
 			}
 
-			node := &DNode{
-				Data: value,
-				Next: current,
-				Prev: current.Prev,
+			node := &dNode{
+				data: value,
+				next: current,
+				prev: current.prev,
 			}
-			current.Prev.Next = node
-			current.Prev = node
+			current.prev.next = node
+			current.prev = node
 			return true
 		}
 	}
@@ -124,20 +128,20 @@ func (d *DoubleLinkedList) InsertBeforeValue(target, value string) bool {
 }
 
 func (d *DoubleLinkedList) InsertAfterValue(target, value string) bool {
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == target {
-			if current == d.Tail {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == target {
+			if current == d.tail {
 				d.PushBack(value)
 				return true
 			}
 
-			node := &DNode{
-				Data: value,
-				Prev: current,
-				Next: current.Next,
+			node := &dNode{
+				data: value,
+				prev: current,
+				next: current.next,
 			}
-			current.Next.Prev = node
-			current.Next = node
+			current.next.prev = node
+			current.next = node
 			return true
 		}
 	}
@@ -145,19 +149,19 @@ func (d *DoubleLinkedList) InsertAfterValue(target, value string) bool {
 }
 
 func (d *DoubleLinkedList) RemoveValue(value string) bool {
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == value {
-			if current == d.Head {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == value {
+			if current == d.head {
 				_, ok := d.PopFront()
 				return ok
 			}
-			if current == d.Tail {
+			if current == d.tail {
 				_, ok := d.PopBack()
 				return ok
 			}
 
-			current.Prev.Next = current.Next
-			current.Next.Prev = current.Prev
+			current.prev.next = current.next
+			current.next.prev = current.prev
 			return true
 		}
 	}
@@ -165,12 +169,12 @@ func (d *DoubleLinkedList) RemoveValue(value string) bool {
 }
 
 func (d *DoubleLinkedList) RemoveBeforeValue(value string) bool {
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == value {
-			if current.Prev == nil {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == value {
+			if current.prev == nil {
 				return false
 			}
-			_, ok := d.removeNode(current.Prev)
+			_, ok := d.removeNode(current.prev)
 			return ok
 		}
 	}
@@ -178,39 +182,39 @@ func (d *DoubleLinkedList) RemoveBeforeValue(value string) bool {
 }
 
 func (d *DoubleLinkedList) RemoveAfterValue(value string) bool {
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == value {
-			if current.Next == nil {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == value {
+			if current.next == nil {
 				return false
 			}
-			_, ok := d.removeNode(current.Next)
+			_, ok := d.removeNode(current.next)
 			return ok
 		}
 	}
 	return false
 }
 
-func (d *DoubleLinkedList) removeNode(node *DNode) (string, bool) {
+func (d *DoubleLinkedList) removeNode(node *dNode) (string, bool) {
 	if node == nil {
 		return "", false
 	}
 
-	if node == d.Head {
+	if node == d.head {
 		return d.PopFront()
 	}
-	if node == d.Tail {
+	if node == d.tail {
 		return d.PopBack()
 	}
 
-	node.Prev.Next = node.Next
-	node.Next.Prev = node.Prev
-	return node.Data, true
+	node.prev.next = node.next
+	node.next.prev = node.prev
+	return node.data, true
 }
 
 func (d *DoubleLinkedList) Find(value string) int {
 	index := 0
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == value {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == value {
 			return index
 		}
 		index++
@@ -220,26 +224,26 @@ func (d *DoubleLinkedList) Find(value string) int {
 
 func (d *DoubleLinkedList) Get() []string {
 	result := make([]string, 0, d.Size())
-	for current := d.Head; current != nil; current = current.Next {
-		result = append(result, current.Data)
+	for current := d.head; current != nil; current = current.next {
+		result = append(result, current.data)
 	}
 	return result
 }
 
 func (d *DoubleLinkedList) GetReverse() []string {
 	result := make([]string, 0, d.Size())
-	for current := d.Tail; current != nil; current = current.Prev {
-		result = append(result, current.Data)
+	for current := d.tail; current != nil; current = current.prev {
+		result = append(result, current.data)
 	}
 	return result
 }
 
 func (d *DoubleLinkedList) GetAfterValue(value string) []string {
-	for current := d.Head; current != nil; current = current.Next {
-		if current.Data == value {
+	for current := d.head; current != nil; current = current.next {
+		if current.data == value {
 			result := make([]string, 0)
-			for node := current.Next; node != nil; node = node.Next {
-				result = append(result, node.Data)
+			for node := current.next; node != nil; node = node.next {
+				result = append(result, node.data)
 			}
 			return result
 		}
@@ -250,8 +254,8 @@ func (d *DoubleLinkedList) GetAfterValue(value string) []string {
 func (d *DoubleLinkedList) GetBeforeValue(value string) []string {
 	result := make([]string, 0)
 
-	for current := d.Head; current != nil && current.Data != value; current = current.Next {
-		result = append(result, current.Data)
+	for current := d.head; current != nil && current.data != value; current = current.next {
+		result = append(result, current.data)
 	}
 
 	if d.Find(value) == -1 {

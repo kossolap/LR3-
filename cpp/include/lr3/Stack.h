@@ -3,6 +3,7 @@
 #define LR3_STACK_H
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,12 +13,12 @@ class Stack {
   private:
     struct Node {
         std::string data;
-        Node* next;
+        std::unique_ptr<Node> next;
 
         explicit Node(const std::string& value);
     };
 
-    Node* top_;
+    std::unique_ptr<Node> top_;
     std::size_t size_;
 
   public:

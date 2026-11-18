@@ -1,13 +1,13 @@
 package structures
 
-type FNode struct {
-	Data string
-	Next *FNode
+type fNode struct {
+	data string
+	next *fNode
 }
 
 type LinkedList struct {
-	Head *FNode
-	Tail *FNode
+	head *fNode
+	tail *fNode
 }
 
 func NewLinkedList() *LinkedList {
@@ -15,42 +15,42 @@ func NewLinkedList() *LinkedList {
 }
 
 func (l *LinkedList) Empty() bool {
-	return l.Head == nil
+	return l.head == nil
 }
 
 func (l *LinkedList) Size() int {
 	count := 0
-	for current := l.Head; current != nil; current = current.Next {
+	for current := l.head; current != nil; current = current.next {
 		count++
 	}
 	return count
 }
 
 func (l *LinkedList) Clear() {
-	l.Head = nil
-	l.Tail = nil
+	l.head = nil
+	l.tail = nil
 }
 
 func (l *LinkedList) PushFront(value string) {
-	node := &FNode{Data: value, Next: l.Head}
-	l.Head = node
+	node := &fNode{data: value, next: l.head}
+	l.head = node
 
-	if l.Tail == nil {
-		l.Tail = node
+	if l.tail == nil {
+		l.tail = node
 	}
 }
 
 func (l *LinkedList) PushBack(value string) {
-	node := &FNode{Data: value}
+	node := &fNode{data: value}
 
-	if l.Tail == nil {
-		l.Head = node
-		l.Tail = node
+	if l.tail == nil {
+		l.head = node
+		l.tail = node
 		return
 	}
 
-	l.Tail.Next = node
-	l.Tail = node
+	l.tail.next = node
+	l.tail = node
 }
 
 func (l *LinkedList) PopFront() (string, bool) {
@@ -58,11 +58,11 @@ func (l *LinkedList) PopFront() (string, bool) {
 		return "", false
 	}
 
-	value := l.Head.Data
-	l.Head = l.Head.Next
+	value := l.head.data
+	l.head = l.head.next
 
-	if l.Head == nil {
-		l.Tail = nil
+	if l.head == nil {
+		l.tail = nil
 	}
 
 	return value, true
@@ -73,33 +73,37 @@ func (l *LinkedList) PopBack() (string, bool) {
 		return "", false
 	}
 
-	value := l.Tail.Data
+	value := l.tail.data
 
-	if l.Head == l.Tail {
+	if l.head == l.tail {
 		l.Clear()
 		return value, true
 	}
 
-	previous := l.Head
-	for previous.Next != l.Tail {
-		previous = previous.Next
+	previous := l.head
+	for previous.next != l.tail {
+		previous = previous.next
 	}
 
-	previous.Next = nil
-	l.Tail = previous
+	previous.next = nil
+	l.tail = previous
 	return value, true
 }
 
-func (l *LinkedList) Index(index int) *FNode {
+func (l *LinkedList) Index(index int) (string, bool) {
 	if index < 0 {
-		return nil
+		return "", false
 	}
 
-	current := l.Head
+	current := l.head
 	for i := 0; current != nil && i < index; i++ {
-		current = current.Next
+		current = current.next
 	}
-	return current
+
+	if current == nil {
+		return "", false
+	}
+	return current.data, true
 }
 
 func (l *LinkedList) InsertBeforeValue(target, value string) bool {
@@ -107,35 +111,35 @@ func (l *LinkedList) InsertBeforeValue(target, value string) bool {
 		return false
 	}
 
-	if l.Head.Data == target {
+	if l.head.data == target {
 		l.PushFront(value)
 		return true
 	}
 
-	previous := l.Head
-	current := l.Head.Next
+	previous := l.head
+	current := l.head.next
 
-	for current != nil && current.Data != target {
+	for current != nil && current.data != target {
 		previous = current
-		current = current.Next
+		current = current.next
 	}
 
 	if current == nil {
 		return false
 	}
 
-	previous.Next = &FNode{Data: value, Next: current}
+	previous.next = &fNode{data: value, next: current}
 	return true
 }
 
 func (l *LinkedList) InsertAfterValue(target, value string) bool {
-	for current := l.Head; current != nil; current = current.Next {
-		if current.Data == target {
-			node := &FNode{Data: value, Next: current.Next}
-			current.Next = node
+	for current := l.head; current != nil; current = current.next {
+		if current.data == target {
+			node := &fNode{data: value, next: current.next}
+			current.next = node
 
-			if node.Next == nil {
-				l.Tail = node
+			if node.next == nil {
+				l.tail = node
 			}
 			return true
 		}
@@ -148,45 +152,45 @@ func (l *LinkedList) RemoveValue(value string) bool {
 		return false
 	}
 
-	if l.Head.Data == value {
+	if l.head.data == value {
 		_, ok := l.PopFront()
 		return ok
 	}
 
-	previous := l.Head
-	current := l.Head.Next
+	previous := l.head
+	current := l.head.next
 
 	for current != nil {
-		if current.Data == value {
-			if current == l.Tail {
+		if current.data == value {
+			if current == l.tail {
 				_, ok := l.PopBack()
 				return ok
 			}
 
-			previous.Next = current.Next
+			previous.next = current.next
 			return true
 		}
 
 		previous = current
-		current = current.Next
+		current = current.next
 	}
 
 	return false
 }
 
 func (l *LinkedList) RemoveBeforeValue(value string) bool {
-	if l.Empty() || l.Head.Data == value {
+	if l.Empty() || l.head.data == value {
 		return false
 	}
 
-	var previousPrevious *FNode
-	previous := l.Head
-	current := l.Head.Next
+	var previousPrevious *fNode
+	previous := l.head
+	current := l.head.next
 
-	for current != nil && current.Data != value {
+	for current != nil && current.data != value {
 		previousPrevious = previous
 		previous = current
-		current = current.Next
+		current = current.next
 	}
 
 	if current == nil {
@@ -198,23 +202,23 @@ func (l *LinkedList) RemoveBeforeValue(value string) bool {
 		return ok
 	}
 
-	previousPrevious.Next = current
+	previousPrevious.next = current
 	return true
 }
 
 func (l *LinkedList) RemoveAfterValue(value string) bool {
-	for current := l.Head; current != nil; current = current.Next {
-		if current.Data == value {
-			if current.Next == nil {
+	for current := l.head; current != nil; current = current.next {
+		if current.data == value {
+			if current.next == nil {
 				return false
 			}
 
-			if current.Next == l.Tail {
+			if current.next == l.tail {
 				_, ok := l.PopBack()
 				return ok
 			}
 
-			current.Next = current.Next.Next
+			current.next = current.next.next
 			return true
 		}
 	}
@@ -224,8 +228,8 @@ func (l *LinkedList) RemoveAfterValue(value string) bool {
 
 func (l *LinkedList) Find(value string) int {
 	index := 0
-	for current := l.Head; current != nil; current = current.Next {
-		if current.Data == value {
+	for current := l.head; current != nil; current = current.next {
+		if current.data == value {
 			return index
 		}
 		index++
@@ -235,18 +239,18 @@ func (l *LinkedList) Find(value string) int {
 
 func (l *LinkedList) Get() []string {
 	result := make([]string, 0, l.Size())
-	for current := l.Head; current != nil; current = current.Next {
-		result = append(result, current.Data)
+	for current := l.head; current != nil; current = current.next {
+		result = append(result, current.data)
 	}
 	return result
 }
 
 func (l *LinkedList) GetAfterValue(value string) []string {
-	for current := l.Head; current != nil; current = current.Next {
-		if current.Data == value {
+	for current := l.head; current != nil; current = current.next {
+		if current.data == value {
 			result := make([]string, 0)
-			for node := current.Next; node != nil; node = node.Next {
-				result = append(result, node.Data)
+			for node := current.next; node != nil; node = node.next {
+				result = append(result, node.data)
 			}
 			return result
 		}
@@ -257,8 +261,8 @@ func (l *LinkedList) GetAfterValue(value string) []string {
 func (l *LinkedList) GetBeforeValue(value string) []string {
 	result := make([]string, 0)
 
-	for current := l.Head; current != nil && current.Data != value; current = current.Next {
-		result = append(result, current.Data)
+	for current := l.head; current != nil && current.data != value; current = current.next {
+		result = append(result, current.data)
 	}
 
 	if l.Find(value) == -1 {

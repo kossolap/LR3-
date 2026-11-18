@@ -1,6 +1,8 @@
+
 @startuml
 title UML-диаграмма классов C++
 skinparam classAttributeIconSize 0
+hide empty members
 
 package "lr3" {
 
@@ -29,8 +31,8 @@ package "lr3" {
         - size_: size_t
         + pushFront(value: string)
         + pushBack(value: string)
-        + insertBefore(target, value: string)
-        + insertAfter(target, value: string)
+        + insertBefore(target: string, value: string)
+        + insertAfter(target: string, value: string)
         + popFront()
         + popBack()
         + remove(value: string): bool
@@ -49,8 +51,8 @@ package "lr3" {
         - size_: size_t
         + pushFront(value: string)
         + pushBack(value: string)
-        + insertBefore(target, value: string)
-        + insertAfter(target, value: string)
+        + insertBefore(target: string, value: string)
+        + insertAfter(target: string, value: string)
         + popFront()
         + popBack()
         + remove(value: string): bool
@@ -120,8 +122,22 @@ package "lr3" {
     }
 
     class Serialization <<utility>> {
-        + saveBinary(filename: string, data: vector<string>)
+        + saveBinary(filename: string, data: vector<string>): void
         + loadBinary(filename: string): vector<string>
+        + saveBinary(filename: string, data: Data): void
+        + loadBinaryData(filename: string): Data
+    }
+
+    class "Serialization::Data" as SerializationData {
+        + arrayCapacity: uint64
+        + array: vector<string>
+        + list: vector<string>
+        + doubleList: vector<string>
+        + queue: vector<string>
+        + stack: vector<string>
+        + hashCapacity: uint64
+        + hashTable: vector<pair<int,string>>
+        + avlTree: vector<string>
     }
 
     class "List::Node" as ListNode
@@ -138,7 +154,6 @@ package "lr3" {
     AVLTree "1" *-- "0..*" AVLNode
     HashTable "1" *-- "0..*" HashEntry
 
-    Serialization ..> Array : сохраняет данные
+    Serialization ..> SerializationData : сериализует
 }
-
 @enduml

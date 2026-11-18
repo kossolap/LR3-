@@ -1,6 +1,4 @@
 
-#include <gtest/gtest.h>
-
 #include "lr3/AVLTree.h"
 #include "lr3/Array.h"
 #include "lr3/DList.h"
@@ -11,6 +9,7 @@
 #include "lr3/Stack.h"
 
 #include <cstdio>
+#include <gtest/gtest.h>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -147,9 +146,7 @@ TEST(AVLTreeGoogleTest, Operations) {
 
 TEST(SerializationGoogleTest, BinaryRoundTrip) {
     const std::string filename = "gtest_serialization_test.bin";
-    const std::vector<std::string> original{
-        "Hello", "World", "Привет", ""
-    };
+    const std::vector<std::string> original{"Hello", "World", "Привет", ""};
 
     Serialization::saveBinary(filename, original);
     const auto restored = Serialization::loadBinary(filename);

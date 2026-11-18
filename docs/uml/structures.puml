@@ -1,175 +1,235 @@
+
 @startuml
-title Лабораторная работа №3 — диаграмма классов структур данных
+title Лабораторная работа №3 — обзорная UML-диаграмма структур данных (Go)
 
 skinparam classAttributeIconSize 0
 hide empty members
+top to bottom direction
 
-package "Структуры данных" {
+package "lr3/structures" {
 
     class Array {
-        - data: string[]
-        + PushBack(value)
-        + Insert(index, value)
-        + RemoveAt(index)
-        + Set(index, value)
-        + GetAt(index)
-        + Get()
-        + Size()
-        + Empty()
+        - data: []string
+        + NewArray(): *Array
+        + PushBack(value: string)
+        + Insert(index: int, value: string): bool
+        + RemoveAt(index: int): bool
+        + Set(index: int, value: string): bool
+        + GetAt(index: int): (string, bool)
+        + Get(): []string
+        + Size(): int
+        + Empty(): bool
         + Clear()
     }
 
     class LinkedList {
-        + Head: FNode
-        + Tail: FNode
-        + PushFront(value)
-        + PushBack(value)
-        + PopFront()
-        + PopBack()
-        + InsertBeforeValue(target, value)
-        + InsertAfterValue(target, value)
-        + RemoveValue(value)
-        + Find(value)
-        + Get()
+        - head: *fNode
+        - tail: *fNode
+        + NewLinkedList(): *LinkedList
+        + Empty(): bool
+        + Size(): int
         + Clear()
+        + PushFront(value: string)
+        + PushBack(value: string)
+        + PopFront(): (string, bool)
+        + PopBack(): (string, bool)
+        + Index(index: int): (string, bool)
+        + InsertBeforeValue(target: string, value: string): bool
+        + InsertAfterValue(target: string, value: string): bool
+        + RemoveValue(value: string): bool
+        + RemoveBeforeValue(value: string): bool
+        + RemoveAfterValue(value: string): bool
+        + Find(value: string): int
+        + Get(): []string
+        + GetAfterValue(value: string): []string
+        + GetBeforeValue(value: string): []string
     }
 
-    class FNode {
-        + Data: string
-        + Next: FNode
+    class fNode <<private>> {
+        - data: string
+        - next: *fNode
     }
 
     class DoubleLinkedList {
-        + Head: DNode
-        + Tail: DNode
-        + PushFront(value)
-        + PushBack(value)
-        + PopFront()
-        + PopBack()
-        + InsertBeforeValue(target, value)
-        + InsertAfterValue(target, value)
-        + RemoveValue(value)
-        + Find(value)
-        + Get()
-        + GetReverse()
+        - head: *dNode
+        - tail: *dNode
+        + NewDoubleLinkedList(): *DoubleLinkedList
+        + Empty(): bool
+        + Size(): int
         + Clear()
+        + PushFront(value: string)
+        + PushBack(value: string)
+        + PopFront(): (string, bool)
+        + PopBack(): (string, bool)
+        + Index(index: int): (string, bool)
+        + InsertBeforeValue(target: string, value: string): bool
+        + InsertAfterValue(target: string, value: string): bool
+        + RemoveValue(value: string): bool
+        + RemoveBeforeValue(value: string): bool
+        + RemoveAfterValue(value: string): bool
+        + Find(value: string): int
+        + Get(): []string
+        + GetReverse(): []string
+        + GetAfterValue(value: string): []string
+        + GetBeforeValue(value: string): []string
+        - removeNode(node: *dNode): (string, bool)
     }
 
-    class DNode {
-        + Data: string
-        + Next: DNode
-        + Prev: DNode
+    class dNode <<private>> {
+        - data: string
+        - next: *dNode
+        - prev: *dNode
     }
 
     class Queue {
-        - Head: QNode
-        - Tail: QNode
-        + Push(value)
-        + Pop()
-        + Get()
-        + Empty()
+        - head: *qNode
+        - tail: *qNode
+        + NewQueue(): *Queue
+        + Empty(): bool
+        + Size(): int
+        + Push(value: string)
+        + Pop(): (string, bool)
+        + Get(): []string
         + Clear()
     }
 
-    class QNode {
-        + Data: string
-        + Next: QNode
+    class qNode <<private>> {
+        - data: string
+        - next: *qNode
     }
 
     class Stack {
-        - Top: SNode
-        + Push(value)
-        + Pop()
-        + Get()
-        + Empty()
+        - head: *sNode
+        + NewStack(): *Stack
+        + Empty(): bool
+        + Size(): int
+        + Push(value: string)
+        + Pop(): (string, bool)
+        + Get(): []string
         + Clear()
     }
 
-    class SNode {
-        + Data: string
-        + Next: SNode
+    class sNode <<private>> {
+        - data: string
+        - next: *sNode
     }
 
     class HashTable {
-        - table: hashEntry[]
+        - table: []hashEntry
         - size: int
-        + Insert(key, value)
-        + Get(key)
-        + Contains(key)
-        + Remove(key)
-        + Size()
-        + Capacity()
-        + Entries()
+        + NewHashTable(capacity: int): *HashTable
+        + Insert(key: int, value: string): error
+        + Get(key: int): (string, bool)
+        + Contains(key: int): bool
+        + Remove(key: int): bool
+        + Size(): int
+        + Capacity(): int
+        + Empty(): bool
         + Clear()
+        + Entries(): map[int]string
+        + String(): string
+    }
+
+    class hashEntry <<private>> {
+        - key: int
+        - value: string
+        - state: uint8
     }
 
     class AVLTree {
-        - Root: AVLNode
+        - root: *avlNode
         - size: int
-        + Insert(key)
-        + Remove(key)
-        + Find(key)
-        + Size()
-        + Empty()
+        + NewAVLTree(): *AVLTree
+        + Insert(key: int)
+        + Remove(key: int): bool
+        + Find(key: int): bool
+        + Size(): int
+        + Empty(): bool
         + Clear()
-        + Inorder()
-        + Preorder()
-        + Postorder()
+        + Inorder(): []int
+        + Preorder(): []int
+        + Postorder(): []int
+        + Validate(): bool
     }
 
-    class AVLNode {
-        + Key: int
-        + Left: AVLNode
-        + Right: AVLNode
-        + Height: int
+    class avlNode <<private>> {
+        - key: int
+        - left: *avlNode
+        - right: *avlNode
+        - height: int
     }
 
-    LinkedList "1" *-- "0..*" FNode
-    DoubleLinkedList "1" *-- "0..*" DNode
-    Queue "1" *-- "0..*" QNode
-    Stack "1" *-- "0..*" SNode
-    AVLTree "1" *-- "0..*" AVLNode
+    LinkedList "1" *-- "0..*" fNode
+    DoubleLinkedList "1" *-- "0..*" dNode
+    Queue "1" *-- "0..*" qNode
+    Stack "1" *-- "0..*" sNode
+    HashTable "1" *-- "0..*" hashEntry
+    AVLTree "1" *-- "0..*" avlNode
 }
 
-package "Сериализация JSON (Go)" {
+package "lr3/serialization" {
 
     class Data {
-        + Array: Array
-        + List: LinkedList
-        + DList: DoubleLinkedList
-        + Queue: Queue
-        + Stack: Stack
-        + HashTable: HashTable
-        + AVLTree: AVLTree
+        + Array: *structures.Array
+        + List: *structures.LinkedList
+        + DList: *structures.DoubleLinkedList
+        + Queue: *structures.Queue
+        + Stack: *structures.Stack
+        + HashTable: *structures.HashTable
+        + AVLTree: *structures.AVLTree
     }
 
-    class JSONSerializer {
-        + Serialize(data): bytes, error
-        + Deserialize(bytes): Data, error
+    class document <<internal>> {
+        + Version: int
+        + Array: []string
+        + List: []string
+        + DoubleList: []string
+        + Queue: []string
+        + Stack: []string
+        + HashCapacity: int
+        + HashEntries: []hashEntry
+        + AVLKeys: []int
     }
 
-    Data o-- Array
-    Data o-- LinkedList
-    Data o-- DoubleLinkedList
-    Data o-- Queue
-    Data o-- Stack
-    Data o-- HashTable
-    Data o-- AVLTree
+    class hashEntry <<internal>> {
+        + Key: int
+        + Value: string
+    }
 
-    JSONSerializer ..> Data : сериализация
+    class JSONSerialization <<package functions>> {
+        + Serialize(data: *Data): ([]byte, error)
+        + Deserialize(encoded: []byte): (*Data, error)
+    }
+
+    Data ..> Array
+    Data ..> LinkedList
+    Data ..> DoubleLinkedList
+    Data ..> Queue
+    Data ..> Stack
+    Data ..> HashTable
+    Data ..> AVLTree
+
+    document *-- hashEntry
+    JSONSerialization ..> Data
+    JSONSerialization ..> document
 }
 
 note bottom of HashTable
-  Разрешение коллизий:
-  двойное хеширование.
-  Ключи — целые числа,
-  значения — строки.
+  Коллизии разрешаются двойным хешированием.
+  Ключи — целые числа, значения — строки.
+  Внутренние записи и поля закрыты.
 end note
 
 note bottom of AVLTree
-  Самобалансирующееся
-  бинарное дерево поиска.
+  Самобалансирующееся бинарное дерево поиска.
   Ключи — целые числа.
+  Высота узлов поддерживается при изменениях.
+  Validate() проверяет инварианты AVL-дерева.
+end note
+
+note bottom of JSONSerialization
+  Сериализация выполняется в JSON.
+  Формат документа имеет версию 1.
 end note
 
 @enduml

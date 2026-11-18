@@ -14,29 +14,52 @@
 
 ## Структура проекта
 
-- `cpp/` — реализация на C++17
-- `go/` — реализация на Go
-- `docs/uml/` — UML-диаграммы
+- cpp/ — реализация на C++17
+- go/ — реализация на Go
+- docs/uml/ — UML-диаграммы
 
 ## C++
 
-Сборка: `cd ~/lr3/cpp && cmake -S . -B build && cmake --build build -j`
+Сборка:
+    cd ~/lr3/cpp
+    cmake -S . -B build
+    cmake --build build -j
 
-Тесты: `cd ~/lr3/cpp && ctest --test-dir build --output-on-failure`
+Тесты:
+    cd ~/lr3/cpp
+    ctest --test-dir build --output-on-failure
 
-Покрытие: `cd ~/lr3/cpp && gcovr --root . --filter 'src/' --html-details coverage.html --print-summary`
+Покрытие:
+    cd ~/lr3/cpp
+    gcovr --root . --object-directory build --filter 'src/.*' --html-details coverage.html --print-summary
 
-Benchmark: `cd ~/lr3/cpp && ./build/lr3_benchmark`
+Бенчмарки:
+    cd ~/lr3/cpp
+    ./build/lr3_benchmark
+    ./build/lr3_google_benchmark
+
+Используются Catch2, Boost.Test, GoogleTest и Google Benchmark.
 
 ## Go
 
-Тесты: `cd ~/lr3/go && go test ./...`
+Тесты:
+    cd ~/lr3/go
+    go test ./...
 
-Покрытие: `cd ~/lr3/go && go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html`
+Покрытие:
+    cd ~/lr3/go
+    go test -coverprofile=coverage.out ./...
+    go tool cover -html=coverage.out -o coverage.html
 
-Benchmark: `cd ~/lr3/go && go test -bench=. -benchmem ./...`
+Бенчмарки:
+    cd ~/lr3/go
+    go test -bench=. -benchmem ./...
 
-Проверка: `cd ~/lr3/go && gofmt -l structures serialization && golangci-lint run ./... && go vet ./...`
+Проверки:
+    cd ~/lr3/go
+    gofmt -l structures serialization
+    /home/diana/go/bin/golangci-lint run ./...
+    go vet ./...
 
 ## Сериализация
 
@@ -45,9 +68,10 @@ Benchmark: `cd ~/lr3/go && go test -bench=. -benchmem ./...`
 
 ## UML-диаграммы
 
-- [Диаграмма C++](docs/uml/cpp.png)
-- [Диаграмма Go](docs/uml/go.png)
+- Диаграмма C++: docs/uml/cpp.png
+- Диаграмма Go: docs/uml/go.png
+- Общая диаграмма структур: docs/uml/structures.png
 
 ## Используемые технологии
 
-C++17, CMake, Catch2, Go, testing, golangci-lint, clang-format, gcovr, PlantUML.
+C++17, CMake, Catch2, Boost.Test, GoogleTest, Google Benchmark, Go, testing, testify, golangci-lint, clang-format, gcovr, PlantUML.

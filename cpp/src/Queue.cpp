@@ -2,6 +2,7 @@
 #include "lr3/Queue.h"
 
 #include <stdexcept>
+#include <utility>
 
 namespace lr3 {
 
@@ -11,11 +12,11 @@ Queue::Queue() : front_(nullptr), rear_(nullptr), size_(0) {}
 
 Queue::Queue(const Queue& other) : Queue() {
     try {
-        const Node* current = other.front_;
+        const Node* current = other.front_.get();
 
         while (current != nullptr) {
             push(current->data);
-            current = current->next;
+            current = current->next.get();
         }
     } catch (...) {
         clear();
@@ -31,11 +32,10 @@ Queue& Queue::operator=(const Queue& other) {
     Queue copy(other);
     clear();
 
-    front_ = copy.front_;
+    front_ = std::move(copy.front_);
     rear_ = copy.rear_;
     size_ = copy.size_;
 
-    copy.front_ = nullptr;
     copy.rear_ = nullptr;
     copy.size_ = 0;
 
@@ -47,16 +47,16 @@ Queue::~Queue() {
 }
 
 void Queue::push(const std::string& value) {
-    Node* newNode = new Node(value);
+    auto newNode = std::make_unique<Node>(value);
+    Node* newRear = newNode.get();
 
     if (rear_ == nullptr) {
-        front_ = newNode;
-        rear_ = newNode;
+        front_ = std::move(newNode);
     } else {
-        rear_->next = newNode;
-        rear_ = newNode;
+        rear_->next = std::move(newNode);
     }
 
+    rear_ = newRear;
     ++size_;
 }
 
@@ -65,17 +65,13 @@ std::string Queue::pop() {
         throw std::out_of_range("Queue is empty");
     }
 
-    Node* oldFront = front_;
-    std::string result = oldFront->data;
-
-    front_ = front_->next;
+    std::string result = front_->data;
+    front_ = std::move(front_->next);
+    --size_;
 
     if (front_ == nullptr) {
         rear_ = nullptr;
     }
-
-    delete oldFront;
-    --size_;
 
     return result;
 }
@@ -106,9 +102,7 @@ std::size_t Queue::size() const noexcept {
 
 void Queue::clear() noexcept {
     while (front_ != nullptr) {
-        Node* nextNode = front_->next;
-        delete front_;
-        front_ = nextNode;
+        front_ = std::move(front_->next);
     }
 
     rear_ = nullptr;
@@ -117,11 +111,11 @@ void Queue::clear() noexcept {
 
 std::vector<std::string> Queue::toVector() const {
     std::vector<std::string> result;
-    const Node* current = front_;
+    const Node* current = front_.get();
 
     while (current != nullptr) {
         result.push_back(current->data);
-        current = current->next;
+        current = current->next.get();
     }
 
     return result;

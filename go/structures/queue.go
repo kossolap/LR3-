@@ -1,13 +1,13 @@
 package structures
 
-type QNode struct {
-	Data string
-	Next *QNode
+type qNode struct {
+	data string
+	next *qNode
 }
 
 type Queue struct {
-	Head *QNode
-	Tail *QNode
+	head *qNode
+	tail *qNode
 }
 
 func NewQueue() *Queue {
@@ -15,28 +15,28 @@ func NewQueue() *Queue {
 }
 
 func (q *Queue) Empty() bool {
-	return q.Head == nil
+	return q.head == nil
 }
 
 func (q *Queue) Size() int {
 	count := 0
-	for current := q.Head; current != nil; current = current.Next {
+	for current := q.head; current != nil; current = current.next {
 		count++
 	}
 	return count
 }
 
 func (q *Queue) Push(value string) {
-	node := &QNode{Data: value}
+	node := &qNode{data: value}
 
-	if q.Tail == nil {
-		q.Head = node
-		q.Tail = node
+	if q.tail == nil {
+		q.head = node
+		q.tail = node
 		return
 	}
 
-	q.Tail.Next = node
-	q.Tail = node
+	q.tail.next = node
+	q.tail = node
 }
 
 func (q *Queue) Pop() (string, bool) {
@@ -44,11 +44,11 @@ func (q *Queue) Pop() (string, bool) {
 		return "", false
 	}
 
-	value := q.Head.Data
-	q.Head = q.Head.Next
+	value := q.head.data
+	q.head = q.head.next
 
-	if q.Head == nil {
-		q.Tail = nil
+	if q.head == nil {
+		q.tail = nil
 	}
 
 	return value, true
@@ -56,13 +56,13 @@ func (q *Queue) Pop() (string, bool) {
 
 func (q *Queue) Get() []string {
 	result := make([]string, 0, q.Size())
-	for current := q.Head; current != nil; current = current.Next {
-		result = append(result, current.Data)
+	for current := q.head; current != nil; current = current.next {
+		result = append(result, current.data)
 	}
 	return result
 }
 
 func (q *Queue) Clear() {
-	q.Head = nil
-	q.Tail = nil
+	q.head = nil
+	q.tail = nil
 }

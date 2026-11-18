@@ -1,7 +1,5 @@
 
 #define BOOST_TEST_MODULE LR3BoostTests
-#include <boost/test/unit_test.hpp>
-
 #include "lr3/AVLTree.h"
 #include "lr3/Array.h"
 #include "lr3/DList.h"
@@ -11,6 +9,7 @@
 #include "lr3/Serialization.h"
 #include "lr3/Stack.h"
 
+#include <boost/test/unit_test.hpp>
 #include <cstdio>
 #include <stdexcept>
 #include <string>
@@ -148,9 +147,7 @@ BOOST_AUTO_TEST_CASE(AVLTreeTest) {
 
 BOOST_AUTO_TEST_CASE(SerializationTest) {
     const std::string filename = "boost_serialization_test.bin";
-    const std::vector<std::string> original{
-        "Hello", "World", "Привет", ""
-    };
+    const std::vector<std::string> original{"Hello", "World", "Привет", ""};
 
     Serialization::saveBinary(filename, original);
     const auto restored = Serialization::loadBinary(filename);

@@ -2,6 +2,7 @@
 #include "lr3/Stack.h"
 
 #include <stdexcept>
+#include <utility>
 
 namespace lr3 {
 
@@ -30,10 +31,9 @@ Stack& Stack::operator=(const Stack& other) {
     Stack copy(other);
     clear();
 
-    top_ = copy.top_;
+    top_ = std::move(copy.top_);
     size_ = copy.size_;
 
-    copy.top_ = nullptr;
     copy.size_ = 0;
 
     return *this;
@@ -44,10 +44,9 @@ Stack::~Stack() {
 }
 
 void Stack::push(const std::string& value) {
-    Node* newNode = new Node(value);
-
-    newNode->next = top_;
-    top_ = newNode;
+    auto newNode = std::make_unique<Node>(value);
+    newNode->next = std::move(top_);
+    top_ = std::move(newNode);
 
     ++size_;
 }
@@ -57,12 +56,8 @@ std::string Stack::pop() {
         throw std::out_of_range("Stack is empty");
     }
 
-    Node* oldTop = top_;
-    std::string result = oldTop->data;
-
-    top_ = top_->next;
-
-    delete oldTop;
+    std::string result = top_->data;
+    top_ = std::move(top_->next);
     --size_;
 
     return result;
@@ -86,9 +81,7 @@ std::size_t Stack::size() const noexcept {
 
 void Stack::clear() noexcept {
     while (top_ != nullptr) {
-        Node* nextNode = top_->next;
-        delete top_;
-        top_ = nextNode;
+        top_ = std::move(top_->next);
     }
 
     size_ = 0;
@@ -96,11 +89,11 @@ void Stack::clear() noexcept {
 
 std::vector<std::string> Stack::toVector() const {
     std::vector<std::string> result;
-    const Node* current = top_;
+    const Node* current = top_.get();
 
     while (current != nullptr) {
         result.push_back(current->data);
-        current = current->next;
+        current = current->next.get();
     }
 
     return result;

@@ -1,24 +1,27 @@
-# Build files
+# Build directories
 build/
+build-*/
 cmake-build-*/
 CMakeFiles/
+
+# CMake generated files
 CMakeCache.txt
 cmake_install.cmake
 Makefile
 _compile_commands.json
 compile_commands.json
 
-# Coverage
+# C++ coverage data
 *.gcda
 *.gcno
 *.gcov
 coverage/
 coverage_html/
 
-# Go
+# Go generated files
 *.test
-coverage.out
-coverage.html
+/go/coverage.out
+/go/coverage.html
 
 # IDE
 .vscode/
@@ -27,3 +30,9 @@ coverage.html
 # OS
 .DS_Store
 Thumbs.db
+
+# C++ generated reports
+/cpp/coverage.*.html
+/cpp/coverage.html
+/cpp/coverage.json
+/cpp/clang-tidy.log

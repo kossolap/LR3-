@@ -1,12 +1,12 @@
 package structures
 
-type SNode struct {
-	Data string
-	Next *SNode
+type sNode struct {
+	data string
+	next *sNode
 }
 
 type Stack struct {
-	Head *SNode
+	head *sNode
 }
 
 func NewStack() *Stack {
@@ -14,19 +14,19 @@ func NewStack() *Stack {
 }
 
 func (s *Stack) Empty() bool {
-	return s.Head == nil
+	return s.head == nil
 }
 
 func (s *Stack) Size() int {
 	count := 0
-	for current := s.Head; current != nil; current = current.Next {
+	for current := s.head; current != nil; current = current.next {
 		count++
 	}
 	return count
 }
 
 func (s *Stack) Push(value string) {
-	s.Head = &SNode{Data: value, Next: s.Head}
+	s.head = &sNode{data: value, next: s.head}
 }
 
 func (s *Stack) Pop() (string, bool) {
@@ -34,19 +34,19 @@ func (s *Stack) Pop() (string, bool) {
 		return "", false
 	}
 
-	value := s.Head.Data
-	s.Head = s.Head.Next
+	value := s.head.data
+	s.head = s.head.next
 	return value, true
 }
 
 func (s *Stack) Get() []string {
 	result := make([]string, 0, s.Size())
-	for current := s.Head; current != nil; current = current.Next {
-		result = append(result, current.Data)
+	for current := s.head; current != nil; current = current.next {
+		result = append(result, current.data)
 	}
 	return result
 }
 
 func (s *Stack) Clear() {
-	s.Head = nil
+	s.head = nil
 }

@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+var (
+	benchmarkSink       any
+	benchmarkStringSink string
+)
+
 func BenchmarkArrayPushBack(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
@@ -12,6 +17,7 @@ func BenchmarkArrayPushBack(b *testing.B) {
 		for j := 0; j < 100; j++ {
 			a.PushBack("value")
 		}
+		benchmarkSink = a
 	}
 }
 
@@ -22,6 +28,7 @@ func BenchmarkLinkedListPushBack(b *testing.B) {
 		for j := 0; j < 100; j++ {
 			list.PushBack("value")
 		}
+		benchmarkSink = list
 	}
 }
 
@@ -32,6 +39,7 @@ func BenchmarkDoubleLinkedListPushBack(b *testing.B) {
 		for j := 0; j < 100; j++ {
 			list.PushBack("value")
 		}
+		benchmarkSink = list
 	}
 }
 
@@ -42,6 +50,7 @@ func BenchmarkQueuePush(b *testing.B) {
 		for j := 0; j < 100; j++ {
 			queue.Push("value")
 		}
+		benchmarkSink = queue
 	}
 }
 
@@ -52,6 +61,7 @@ func BenchmarkStackPush(b *testing.B) {
 		for j := 0; j < 100; j++ {
 			stack.Push("value")
 		}
+		benchmarkSink = stack
 	}
 }
 
@@ -64,6 +74,7 @@ func BenchmarkHashTableInsert(b *testing.B) {
 				b.Fatal(err)
 			}
 		}
+		benchmarkSink = table
 	}
 }
 
@@ -74,6 +85,7 @@ func BenchmarkAVLTreeInsert(b *testing.B) {
 		for j := 0; j < 100; j++ {
 			tree.Insert(j)
 		}
+		benchmarkSink = tree
 	}
 }
 
@@ -82,10 +94,15 @@ func BenchmarkArrayGet(b *testing.B) {
 	for i := 0; i < 1000; i++ {
 		a.PushBack(fmt.Sprintf("value-%d", i))
 	}
-	b.ResetTimer()
+
 	b.ReportAllocs()
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, _ = a.GetAt(i % 1000)
+		value, ok := a.GetAt(i % 1000)
+		if !ok {
+			b.Fatal("GetAt returned false for a valid index")
+		}
+		benchmarkStringSink = value
 	}
 }

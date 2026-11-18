@@ -1,14 +1,13 @@
 
-#include <benchmark/benchmark.h>
-
-#include "lr3/Array.h"
 #include "lr3/AVLTree.h"
+#include "lr3/Array.h"
 #include "lr3/DList.h"
 #include "lr3/HashTable.h"
 #include "lr3/List.h"
 #include "lr3/Queue.h"
 #include "lr3/Stack.h"
 
+#include <benchmark/benchmark.h>
 #include <cstddef>
 #include <string>
 
@@ -112,8 +111,7 @@ static void BM_AVLTreeInsert(benchmark::State& state) {
     state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(count));
 }
 
-#define REGISTER_BENCHMARK(function) \
-    BENCHMARK(function)->Arg(100)->Arg(1000)->Arg(5000)
+#define REGISTER_BENCHMARK(function) BENCHMARK(function)->Arg(100)->Arg(1000)->Arg(5000)
 
 REGISTER_BENCHMARK(BM_ArrayPushBack);
 REGISTER_BENCHMARK(BM_ListPushBack);
