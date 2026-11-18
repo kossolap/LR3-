@@ -99,7 +99,7 @@ AVLTree::Node* AVLTree::balance(Node* node) {
 AVLTree::Node* AVLTree::insert(Node* node, const std::string& key) {
     if (node == nullptr) {
         ++size_;
-        return new Node(key); // NOLINT(cppcoreguidelines-owning-memory)
+        return new Node(key);
     }
 
     if (key < node->key) {
@@ -144,7 +144,7 @@ AVLTree::Node* AVLTree::remove(Node* node, const std::string& key) {
         Node* left = node->left;
         Node* right = node->right;
 
-        delete node; // NOLINT(cppcoreguidelines-owning-memory)
+        delete node;
         --size_;
 
         if (right == nullptr) {
@@ -228,7 +228,7 @@ void AVLTree::destroy(Node* node) noexcept {
     destroy(node->left);
     destroy(node->right);
 
-    delete node; // NOLINT(cppcoreguidelines-owning-memory)
+    delete node;
 }
 
 AVLTree::Node* AVLTree::clone(Node* node) {
@@ -236,7 +236,7 @@ AVLTree::Node* AVLTree::clone(Node* node) {
         return nullptr;
     }
 
-    Node* copy = new Node(node->key); // NOLINT(cppcoreguidelines-owning-memory)
+    Node* copy = new Node(node->key);
     copy->height = node->height;
 
     try {
@@ -257,4 +257,4 @@ void AVLTree::clear() noexcept {
     size_ = 0;
 }
 
-} // namespace lr3
+}

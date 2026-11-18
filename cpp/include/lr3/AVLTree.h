@@ -58,6 +58,6 @@ class AVLTree {
     std::vector<std::string> toVector() const;
 };
 
-} // namespace lr3
+}
 
 #endif

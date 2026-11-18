@@ -34,7 +34,7 @@ void printHashTable(const std::vector<std::pair<int, std::string>>& entries) {
     }
 }
 
-} // namespace
+}
 
 int main() {
     const std::string filename = "lr3_demo.bin";

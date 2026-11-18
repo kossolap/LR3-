@@ -47,7 +47,7 @@ DList::~DList() {
 }
 
 void DList::pushFront(const std::string& value) {
-    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
+    Node* newNode = new Node(value);
 
     newNode->next = head_;
 
@@ -62,7 +62,7 @@ void DList::pushFront(const std::string& value) {
 }
 
 void DList::pushBack(const std::string& value) {
-    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
+    Node* newNode = new Node(value);
 
     newNode->prev = tail_;
 
@@ -77,7 +77,7 @@ void DList::pushBack(const std::string& value) {
 }
 
 void DList::insertBefore(const std::string& target,
-                         const std::string& value) { // NOLINT(bugprone-easily-swappable-parameters)
+                         const std::string& value) {
     Node* current = head_;
 
     while (current != nullptr && current->data != target) {
@@ -93,7 +93,7 @@ void DList::insertBefore(const std::string& target,
         return;
     }
 
-    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
+    Node* newNode = new Node(value);
 
     newNode->prev = current->prev;
     newNode->next = current;
@@ -105,7 +105,7 @@ void DList::insertBefore(const std::string& target,
 }
 
 void DList::insertAfter(const std::string& target,
-                        const std::string& value) { // NOLINT(bugprone-easily-swappable-parameters)
+                        const std::string& value) {
     Node* current = head_;
 
     while (current != nullptr && current->data != target) {
@@ -121,7 +121,7 @@ void DList::insertAfter(const std::string& target,
         return;
     }
 
-    Node* newNode = new Node(value); // NOLINT(cppcoreguidelines-owning-memory)
+    Node* newNode = new Node(value);
 
     newNode->next = current->next;
     newNode->prev = current;
@@ -146,7 +146,7 @@ void DList::popFront() {
         tail_ = nullptr;
     }
 
-    delete oldHead; // NOLINT(cppcoreguidelines-owning-memory)
+    delete oldHead;
     --size_;
 }
 
@@ -164,7 +164,7 @@ void DList::popBack() {
         head_ = nullptr;
     }
 
-    delete oldTail; // NOLINT(cppcoreguidelines-owning-memory)
+    delete oldTail;
     --size_;
 }
 
@@ -192,7 +192,7 @@ bool DList::remove(const std::string& value) {
     current->prev->next = current->next;
     current->next->prev = current->prev;
 
-    delete current; // NOLINT(cppcoreguidelines-owning-memory)
+    delete current;
     --size_;
 
     return true;
@@ -239,7 +239,7 @@ bool DList::empty() const noexcept {
 void DList::clear() noexcept {
     while (head_ != nullptr) {
         Node* nextNode = head_->next;
-        delete head_; // NOLINT(cppcoreguidelines-owning-memory)
+        delete head_;
         head_ = nextNode;
     }
 
@@ -273,4 +273,4 @@ std::vector<std::string> DList::toReverseVector() const {
     return result;
 }
 
-} // namespace lr3
+}

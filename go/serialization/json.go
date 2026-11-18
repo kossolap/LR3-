@@ -13,7 +13,7 @@ import (
 
 const formatVersion = 1
 
-// Data объединяет все структуры, которые сериализуются одним документом.
+
 type Data struct {
 	Array     *structures.Array
 	List      *structures.LinkedList
@@ -41,7 +41,7 @@ type document struct {
 	AVLKeys      []int       `json:"avl_keys"`
 }
 
-// Serialize преобразует все структуры в текстовый JSON-документ.
+
 func Serialize(data *Data) ([]byte, error) {
 	if data == nil {
 		return nil, errors.New("данные для сериализации не заданы")
@@ -88,7 +88,7 @@ func Serialize(data *Data) ([]byte, error) {
 	return json.MarshalIndent(doc, "", "  ")
 }
 
-// Deserialize восстанавливает все структуры из JSON-документа.
+
 func Deserialize(encoded []byte) (*Data, error) {
 	decoder := json.NewDecoder(bytes.NewReader(encoded))
 	decoder.DisallowUnknownFields()
@@ -143,8 +143,8 @@ func Deserialize(encoded []byte) (*Data, error) {
 		data.Queue.Push(value)
 	}
 
-	// Stack.Get возвращает элементы от вершины к основанию.
-	// Поэтому восстанавливаем стек в обратном порядке.
+
+
 	for i := len(doc.Stack) - 1; i >= 0; i-- {
 		data.Stack.Push(doc.Stack[i])
 	}

@@ -168,9 +168,9 @@ void checkEndOfFile(std::ifstream& file) {
     }
 }
 
-} // namespace
+}
 
-// Прежний интерфейс для vector<string>.
+
 
 void Serialization::saveBinary(const std::string& filename, const std::vector<std::string>& data) {
     if (data.size() > maxElements) {
@@ -209,7 +209,7 @@ std::vector<std::string> Serialization::loadBinary(const std::string& filename) 
     return result;
 }
 
-// Полная бинарная сериализация всех структур.
+
 
 void Serialization::saveBinary(const std::string& filename, const Data& data) {
     if (data.arrayCapacity > maxCapacity || data.arrayCapacity < data.array.size()) {
@@ -354,4 +354,4 @@ Serialization::Data Serialization::loadBinaryData(const std::string& filename) {
     return data;
 }
 
-} // namespace lr3
+}

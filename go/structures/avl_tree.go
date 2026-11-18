@@ -241,7 +241,7 @@ func (t *AVLTree) Postorder() []int {
 	return result
 }
 
-// Validate проверяет порядок ключей, высоты, AVL-баланс и размер дерева.
+
 func (t *AVLTree) Validate() bool {
 	count := 0
 

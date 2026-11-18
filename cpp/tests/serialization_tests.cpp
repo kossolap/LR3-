@@ -42,7 +42,7 @@ void createValidFile(const std::string& filename) {
     Serialization::saveBinary(filename, data);
 }
 
-} // namespace
+}
 
 TEST_CASE("Binary serialization restores all structures", "[serialization]") {
     Array array(8);

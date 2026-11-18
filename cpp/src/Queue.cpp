@@ -121,4 +121,4 @@ std::vector<std::string> Queue::toVector() const {
     return result;
 }
 
-} // namespace lr3
+}

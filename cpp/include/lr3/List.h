@@ -31,9 +31,9 @@ class List {
     void pushBack(const std::string& value);
 
     void insertBefore(const std::string& target,
-                      const std::string& value); // NOLINT(bugprone-easily-swappable-parameters)
+                      const std::string& value);
     void insertAfter(const std::string& target,
-                     const std::string& value); // NOLINT(bugprone-easily-swappable-parameters)
+                     const std::string& value);
 
     void popFront();
     void popBack();
@@ -53,6 +53,6 @@ class List {
     std::vector<std::string> toVector() const;
 };
 
-} // namespace lr3
+}
 
 #endif

@@ -19,7 +19,7 @@
 
 using namespace lr3;
 
-// ==================== ARRAY ====================
+
 
 TEST_CASE("Array constructors and capacity", "[array]") {
     Array array;
@@ -138,7 +138,7 @@ TEST_CASE("Array clear and reuse", "[array]") {
     REQUIRE(array.at(0) == "C");
 }
 
-// ==================== LIST ====================
+
 
 TEST_CASE("List insertion positions", "[list]") {
     List list;
@@ -227,7 +227,7 @@ TEST_CASE("List copying and assignment", "[list]") {
     REQUIRE(assigned.empty());
 }
 
-// ==================== DOUBLE LINKED LIST ====================
+
 
 TEST_CASE("DList insertion positions", "[dlist]") {
     DList list;
@@ -317,7 +317,7 @@ TEST_CASE("DList copying and assignment", "[dlist]") {
     REQUIRE(assigned.empty());
 }
 
-// ==================== QUEUE ====================
+
 
 TEST_CASE("Queue operations and exceptions", "[queue]") {
     Queue queue;
@@ -373,7 +373,7 @@ TEST_CASE("Queue copying and assignment", "[queue]") {
     REQUIRE(assigned.empty());
 }
 
-// ==================== STACK ====================
+
 
 TEST_CASE("Stack operations and exceptions", "[stack]") {
     Stack stack;
@@ -427,7 +427,7 @@ TEST_CASE("Stack copying and assignment", "[stack]") {
     REQUIRE(assigned.empty());
 }
 
-// ==================== HASH TABLE ====================
+
 
 TEST_CASE("HashTable operations and exceptions", "[hash]") {
     HashTable table;
@@ -449,7 +449,7 @@ TEST_CASE("HashTable operations and exceptions", "[hash]") {
     REQUIRE(table.get(202) == "Moscow");
     REQUIRE(table.get(303) == "C++");
 
-    // Повторная вставка обновляет значение, но не увеличивает размер.
+
     table.insert(101, "Diana");
 
     REQUIRE(table.get(101) == "Diana");
@@ -465,11 +465,11 @@ TEST_CASE("HashTable operations and exceptions", "[hash]") {
     REQUIRE(table.empty());
     REQUIRE(table.size() == 0);
 
-    // После очистки таблица должна оставаться пригодной для использования.
+
     table.insert(404, "New value");
     REQUIRE(table.get(404) == "New value");
 
-    // Проверка отрицательного ключа и минимального значения int.
+
     table.insert(-123, "Negative");
     table.insert(std::numeric_limits<int>::min(), "Minimum integer");
 
@@ -482,7 +482,7 @@ TEST_CASE("HashTable collision handling and deleted slots", "[hash]") {
 
     REQUIRE(table.capacity() == 5);
 
-    // Ключи 1 и 6 имеют одинаковый первичный хеш при ёмкости 5.
+
     table.insert(1, "First");
     table.insert(6, "Second");
 
@@ -490,21 +490,21 @@ TEST_CASE("HashTable collision handling and deleted slots", "[hash]") {
     REQUIRE(table.get(1) == "First");
     REQUIRE(table.get(6) == "Second");
 
-    // Удаление первого элемента не должно нарушать поиск второго.
+
     REQUIRE(table.remove(1));
 
     REQUIRE_FALSE(table.contains(1));
     REQUIRE(table.contains(6));
     REQUIRE(table.get(6) == "Second");
 
-    // Удалённая ячейка должна повторно использоваться при вставке.
+
     table.insert(11, "Third");
 
     REQUIRE(table.size() == 2);
     REQUIRE(table.get(6) == "Second");
     REQUIRE(table.get(11) == "Third");
 
-    // Обновление существующего ключа после коллизий.
+
     table.insert(6, "Updated");
 
     REQUIRE(table.get(6) == "Updated");
@@ -528,13 +528,13 @@ TEST_CASE("HashTable fixed capacity and overflow", "[hash]") {
         REQUIRE(table.get(i) == "value" + std::to_string(i));
     }
 
-    // Фиксированная таблица не должна автоматически увеличивать ёмкость.
+
     REQUIRE_THROWS_AS(table.insert(100, "overflow"), std::overflow_error);
 
     REQUIRE(table.size() == 5);
     REQUIRE(table.capacity() == 5);
 
-    // После удаления элемента освободившаяся ячейка должна использоваться повторно.
+
     REQUIRE(table.remove(2));
     REQUIRE(table.size() == 4);
 
@@ -559,7 +559,7 @@ TEST_CASE("HashTable copying and assignment", "[hash]") {
     REQUIRE(copied.get(10) == "One");
     REQUIRE(copied.get(20) == "Two");
 
-    // Изменение копии не должно менять исходную таблицу.
+
     copied.insert(30, "Three");
 
     REQUIRE(copied.size() == 3);
@@ -589,7 +589,7 @@ TEST_CASE("HashTable copying and assignment", "[hash]") {
     REQUIRE(assigned.empty());
 }
 
-// ==================== AVL TREE ====================
+
 
 TEST_CASE("AVLTree basic operations", "[avl]") {
     AVLTree tree;
@@ -736,7 +736,7 @@ TEST_CASE("AVLTree copying and assignment", "[avl]") {
     REQUIRE(tree.empty());
 }
 
-// ==================== BINARY SERIALIZATION ====================
+
 
 TEST_CASE("Serialization saves and loads strings", "[serialization]") {
     const std::vector<std::string> original = {"Hello", "World", "Привет", "",
@@ -771,7 +771,7 @@ TEST_CASE("Serialization throws for missing file", "[serialization]") {
                       std::runtime_error);
 }
 
-// ==================== ADDITIONAL LIST TESTS ====================
+
 
 TEST_CASE("List insertBefore at head", "[list]") {
     List list;

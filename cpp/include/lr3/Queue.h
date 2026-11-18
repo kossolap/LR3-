@@ -42,6 +42,6 @@ class Queue {
     std::vector<std::string> toVector() const;
 };
 
-} // namespace lr3
+}
 
 #endif

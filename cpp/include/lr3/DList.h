@@ -32,9 +32,9 @@ class DList {
     void pushBack(const std::string& value);
 
     void insertBefore(const std::string& target,
-                      const std::string& value); // NOLINT(bugprone-easily-swappable-parameters)
+                      const std::string& value);
     void insertAfter(const std::string& target,
-                     const std::string& value); // NOLINT(bugprone-easily-swappable-parameters)
+                     const std::string& value);
 
     void popFront();
     void popBack();
@@ -54,6 +54,6 @@ class DList {
     std::vector<std::string> toReverseVector() const;
 };
 
-} // namespace lr3
+}
 
 #endif

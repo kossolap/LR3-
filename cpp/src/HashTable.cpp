@@ -220,4 +220,4 @@ std::vector<std::pair<int, std::string>> HashTable::toVector() const {
     return result;
 }
 
-} // namespace lr3
+} 

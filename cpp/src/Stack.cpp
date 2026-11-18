@@ -99,4 +99,4 @@ std::vector<std::string> Stack::toVector() const {
     return result;
 }
 
-} // namespace lr3
+}

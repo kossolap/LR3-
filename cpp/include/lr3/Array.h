@@ -47,6 +47,6 @@ class Array {
     void swap(Array& other) noexcept;
 };
 
-} // namespace lr3
+}
 
 #endif

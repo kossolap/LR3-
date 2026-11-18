@@ -73,7 +73,7 @@ func NewHashTable(capacity int) *HashTable {
 	}
 }
 
-// foldingHash groups the decimal digits of the absolute key into groups of three.
+
 func foldingHash(key int) uint64 {
 	var value uint64
 

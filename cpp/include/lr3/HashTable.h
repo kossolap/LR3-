@@ -52,6 +52,6 @@ class HashTable {
     static std::size_t nextPrime(std::size_t number);
 };
 
-} // namespace lr3
+}
 
 #endif
