@@ -1,3 +1,4 @@
+
 # Build directories
 build/
 build-*/
@@ -23,6 +24,20 @@ coverage_html/
 /go/coverage.out
 /go/coverage.html
 
+# C++ generated reports
+/cpp/coverage.*.html
+/cpp/coverage.html
+/cpp/coverage.json
+/cpp/clang-tidy.log
+
+# Demo output files
+/cpp/lr3_demo.bin
+/cpp/lr3_demo.json
+/go/demo_output/
+
+# Personal notes
+/ЗАМЕТКИ
+
 # IDE
 .vscode/
 .idea/
@@ -30,9 +45,3 @@ coverage_html/
 # OS
 .DS_Store
 Thumbs.db
-
-# C++ generated reports
-/cpp/coverage.*.html
-/cpp/coverage.html
-/cpp/coverage.json
-/cpp/clang-tidy.log

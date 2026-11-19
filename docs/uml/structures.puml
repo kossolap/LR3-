@@ -191,7 +191,7 @@ package "lr3/serialization" {
         + AVLKeys: []int
     }
 
-    class hashEntry <<internal>> {
+    class "serialization.hashEntry" as SerializationHashEntry <<internal>> {
         + Key: int
         + Value: string
     }
@@ -199,6 +199,11 @@ package "lr3/serialization" {
     class JSONSerialization <<package functions>> {
         + Serialize(data: *Data): ([]byte, error)
         + Deserialize(encoded: []byte): (*Data, error)
+    }
+
+    class BinarySerialization <<package functions>> {
+        + SerializeBinary(data: *Data): ([]byte, error)
+        + DeserializeBinary(encoded: []byte): (*Data, error)
     }
 
     Data ..> Array
@@ -209,9 +214,10 @@ package "lr3/serialization" {
     Data ..> HashTable
     Data ..> AVLTree
 
-    document *-- hashEntry
+    document *-- SerializationHashEntry
     JSONSerialization ..> Data
     JSONSerialization ..> document
+    BinarySerialization ..> Data
 }
 
 note bottom of HashTable
@@ -228,8 +234,17 @@ note bottom of AVLTree
 end note
 
 note bottom of JSONSerialization
-  Сериализация выполняется в JSON.
-  Формат документа имеет версию 1.
+  Текстовая сериализация JSON.
+  Версия формата: 1.
+  Все 7 структур данных.
+end note
+
+note bottom of BinarySerialization
+  Бинарная сериализация.
+  Сигнатура: LR3GOB01.
+  Порядок байтов: little-endian.
+  Версия формата: 1.
+  Все 7 структур данных.
 end note
 
 @enduml

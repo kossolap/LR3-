@@ -1,77 +1,225 @@
+
 # Лабораторная работа №3
 
-Реализация структур данных на C++17 и Go.
+Реализация семи структур данных на **C++17** и **Go** с тестированием, бенчмарками, UML-диаграммами и сериализацией в двух форматах: **бинарном и JSON**.
 
-## Реализованные структуры
+## Реализованные структуры данных
 
-- Динамический массив
-- Односвязный список
-- Двусвязный список
-- Очередь
-- Стек
-- Хеш-таблица
-- AVL-дерево
+1. Динамический массив (Array)
+2. Односвязный список (LinkedList)
+3. Двусвязный список (DoubleLinkedList)
+4. Очередь (Queue)
+5. Стек (Stack)
+6. Хеш-таблица (HashTable)
+7. AVL-дерево (AVLTree)
+
+Структуры реализованы на обоих языках.
 
 ## Структура проекта
 
-- cpp/ — реализация на C++17
-- go/ — реализация на Go
-- docs/uml/ — UML-диаграммы
+- `cpp/` — реализация на C++17, тесты, бенчмарки и демонстрационная программа.
+- `go/` — реализация на Go, тесты, бенчмарки и демонстрационная программа.
+- `docs/uml/` — исходные файлы PlantUML и изображения UML-диаграмм.
 
-## C++
+## C++17
 
-Сборка:
-    cd ~/lr3/cpp
-    cmake -S . -B build
-    cmake --build build -j
+### Требования
 
-Тесты:
-    cd ~/lr3/cpp
-    ctest --test-dir build --output-on-failure
+- Компилятор с поддержкой C++17
+- CMake
+- Библиотека `nlohmann/json` для JSON-сериализации
+- Библиотеки тестирования и бенчмарков, используемые проектом
 
-Покрытие:
-    cd ~/lr3/cpp
-    gcovr --root . --object-directory build --filter 'src/.*' --html-details coverage.html --print-summary
+В Ubuntu библиотеку JSON можно установить командой:
 
-Бенчмарки:
-    cd ~/lr3/cpp
-    ./build/lr3_benchmark
-    ./build/lr3_google_benchmark
+```bash
+sudo apt install nlohmann-json3-dev
+```
 
-Используются Catch2, Boost.Test, GoogleTest и Google Benchmark.
+### Сборка
+
+```bash
+cd ~/lr3/cpp
+cmake -S . -B build
+cmake --build build -j2
+```
+
+### Тесты
+
+```bash
+cd ~/lr3/cpp
+ctest --test-dir build --output-on-failure
+```
+
+В проекте используются Catch2, Boost.Test и GoogleTest.
+
+При последней проверке успешно пройдены **68 из 68 тестов**.
+
+### Демонстрационная программа
+
+```bash
+cd ~/lr3/cpp
+cmake --build build --target lr3_demo -j2
+./build/lr3_demo
+```
+
+Демонстрационная программа:
+
+- Работает со всеми семью структурами данных.
+- Сохраняет данные в бинарный файл `lr3_demo.bin`.
+- Сохраняет данные в JSON-файл `lr3_demo.json`.
+- Загружает данные из обоих файлов.
+- Проверяет правильность восстановления данных.
+
+### Покрытие тестами
+
+```bash
+cd ~/lr3/cpp
+gcovr --root . --object-directory build --filter 'src/.*' --html-details coverage.html --print-summary
+```
+
+Для корректного отчёта о покрытии необходима сборка с включённой инструментализацией покрытия.
+
+### Бенчмарки
+
+```bash
+cd ~/lr3/cpp
+./build/lr3_benchmark
+./build/lr3_google_benchmark
+```
+
+Используется Google Benchmark и другие средства измерения производительности проекта.
 
 ## Go
 
-Тесты:
-    cd ~/lr3/go
-    go test ./...
+### Тесты
 
-Покрытие:
-    cd ~/lr3/go
-    go test -coverprofile=coverage.out ./...
-    go tool cover -html=coverage.out -o coverage.html
+```bash
+cd ~/lr3/go
+go test ./...
+```
 
-Бенчмарки:
-    cd ~/lr3/go
-    go test -bench=. -benchmem ./...
+Тесты проверяют структуры данных, JSON-сериализацию, бинарную сериализацию и обработку некорректных данных.
 
-Проверки:
-    cd ~/lr3/go
-    gofmt -l structures serialization
-    /home/diana/go/bin/golangci-lint run ./...
-    go vet ./...
+### Демонстрационная программа
+
+```bash
+cd ~/lr3/go
+go run ./cmd/demo
+```
+
+Программа создаёт каталог `demo_output/` и сохраняет:
+
+- `demo_output/structures.json` — данные в формате JSON.
+- `demo_output/structures.bin` — данные в бинарном формате.
+
+Затем программа загружает оба файла, проверяет восстановление всех семи структур и сравнивает результаты.
+
+### Покрытие тестами
+
+```bash
+cd ~/lr3/go
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out -o coverage.html
+```
+
+### Бенчмарки
+
+```bash
+cd ~/lr3/go
+go test -bench=. -benchmem ./...
+```
+
+### Проверка качества кода
+
+```bash
+cd ~/lr3/go
+gofmt -l structures serialization
+go vet ./...
+/home/diana/go/bin/golangci-lint run ./...
+```
 
 ## Сериализация
 
-- C++ — бинарная сериализация.
-- Go — текстовая сериализация JSON.
+В обеих реализациях поддерживаются **два формата**.
+
+| Язык | JSON | Бинарный формат |
+|---|---|---|
+| C++17 | Да | Да |
+| Go | Да | Да |
+
+### C++
+
+Основные функции сериализации:
+
+- `Serialization::saveBinary()` — сохранение в бинарном формате.
+- `Serialization::loadBinaryData()` — загрузка всех структур из бинарного файла.
+- `Serialization::saveText()` — сохранение в JSON.
+- `Serialization::loadTextData()` — загрузка всех структур из JSON.
+
+Для хранения состояния используется `Serialization::Data`.
+
+### Go
+
+Функции пакета `serialization`:
+
+- `Serialize(data)` — сериализация в JSON.
+- `Deserialize(encoded)` — восстановление из JSON.
+- `SerializeBinary(data)` — бинарная сериализация.
+- `DeserializeBinary(encoded)` — восстановление из бинарного формата.
+
+Функции возвращают данные в виде `[]byte` и обрабатывают ошибки.
+
+### Особенности форматов
+
+**JSON:**
+
+- Текстовый формат, удобный для просмотра.
+- Содержит данные всех семи структур.
+- Использует версию формата `1`.
+
+**Бинарный формат Go:**
+
+- Использует сигнатуру `LR3GOB01`.
+- Использует порядок байтов little-endian.
+- Содержит версию формата `1`.
+- Проверяет корректность входных данных при чтении.
+
+Бинарные форматы C++ и Go не заявлены как взаимозаменяемые. Каждый формат следует читать соответствующей реализацией.
 
 ## UML-диаграммы
 
-- Диаграмма C++: docs/uml/cpp.png
-- Диаграмма Go: docs/uml/go.png
-- Общая диаграмма структур: docs/uml/structures.png
+Диаграммы описаны на PlantUML.
+
+| Диаграмма | Исходный файл | Изображение |
+|---|---|---|
+| C++ | `docs/uml/cpp.puml` | `docs/uml/cpp.png` |
+| Go | `docs/uml/go.puml` | `docs/uml/go.png` |
+| Обзор структур Go | `docs/uml/structures.puml` | `docs/uml/structures.png` |
+
+Генерация PNG:
+
+```bash
+plantuml -tpng docs/uml/*.puml
+```
+
+Проверка синтаксиса:
+
+```bash
+plantuml -checkonly docs/uml/*.puml
+```
 
 ## Используемые технологии
 
-C++17, CMake, Catch2, Boost.Test, GoogleTest, Google Benchmark, Go, testing, testify, golangci-lint, clang-format, gcovr, PlantUML.
+- **C++17:** CMake, Catch2, Boost.Test, GoogleTest, Google Benchmark, nlohmann/json.
+- **Go:** стандартный пакет `testing`, testify, golangci-lint.
+- **Качество кода:** clang-format, gofmt, go vet, gcovr.
+- **Документация:** PlantUML, Graphviz.
+
+## Результат работы
+
+Реализованы семь структур данных на C++17 и Go.
+
+Для обеих реализаций добавлены бинарная и JSON-сериализация, автоматические тесты и демонстрационные программы, проверяющие сохранение и восстановление данных.
+
+Подготовлены UML-диаграммы структур данных и сериализации.

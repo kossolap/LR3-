@@ -11,6 +11,8 @@
 #include <utility>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 namespace lr3 {
 namespace {
 
@@ -168,11 +170,56 @@ void checkEndOfFile(std::ifstream& file) {
     }
 }
 
+void validateData(const Serialization::Data& data) {
+    if (data.arrayCapacity > maxCapacity ||
+        data.arrayCapacity < data.array.size()) {
+        throw std::runtime_error("Invalid array capacity");
+    }
+
+    if (data.hashCapacity == 0 ||
+        data.hashCapacity > maxCapacity ||
+        data.hashTable.size() > data.hashCapacity) {
+        throw std::runtime_error("Invalid hash table capacity");
+    }
+
+    auto checkStrings = [](const std::vector<std::string>& values) {
+        if (values.size() > maxElements) {
+            throw std::runtime_error("Too many elements to serialize");
+        }
+
+        for (const auto& value : values) {
+            if (value.size() > maxStringLength) {
+                throw std::runtime_error("String is too large to serialize");
+            }
+        }
+    };
+
+    checkStrings(data.array);
+    checkStrings(data.list);
+    checkStrings(data.doubleList);
+    checkStrings(data.queue);
+    checkStrings(data.stack);
+    checkStrings(data.avlTree);
+
+    std::unordered_set<int> keys;
+
+    for (const auto& entry : data.hashTable) {
+        if (entry.second.size() > maxStringLength) {
+            throw std::runtime_error("String is too large to serialize");
+        }
+
+        if (!keys.insert(entry.first).second) {
+            throw std::runtime_error("Duplicate hash table key");
+        }
+    }
 }
 
+} // namespace
 
-
-void Serialization::saveBinary(const std::string& filename, const std::vector<std::string>& data) {
+void Serialization::saveBinary(
+    const std::string& filename,
+    const std::vector<std::string>& data
+) {
     if (data.size() > maxElements) {
         throw std::runtime_error("Too many elements to serialize");
     }
@@ -196,7 +243,9 @@ void Serialization::saveBinary(const std::string& filename, const std::vector<st
     }
 }
 
-std::vector<std::string> Serialization::loadBinary(const std::string& filename) {
+std::vector<std::string> Serialization::loadBinary(
+    const std::string& filename
+) {
     std::ifstream file(filename, std::ios::binary);
 
     if (!file) {
@@ -209,14 +258,17 @@ std::vector<std::string> Serialization::loadBinary(const std::string& filename) 
     return result;
 }
 
-
-
-void Serialization::saveBinary(const std::string& filename, const Data& data) {
-    if (data.arrayCapacity > maxCapacity || data.arrayCapacity < data.array.size()) {
+void Serialization::saveBinary(
+    const std::string& filename,
+    const Data& data
+) {
+    if (data.arrayCapacity > maxCapacity ||
+        data.arrayCapacity < data.array.size()) {
         throw std::runtime_error("Invalid array capacity");
     }
 
-    if (data.hashCapacity == 0 || data.hashCapacity > maxCapacity ||
+    if (data.hashCapacity == 0 ||
+        data.hashCapacity > maxCapacity ||
         data.hashTable.size() > data.hashCapacity) {
         throw std::runtime_error("Invalid hash table capacity");
     }
@@ -256,12 +308,16 @@ void Serialization::saveBinary(const std::string& filename, const Data& data) {
     auto sortedEntries = data.hashTable;
 
     std::sort(sortedEntries.begin(), sortedEntries.end(),
-              [](const auto& left, const auto& right) { return left.first < right.first; });
+              [](const auto& left, const auto& right) {
+                  return left.first < right.first;
+              });
 
     writeU64(file, static_cast<std::uint64_t>(sortedEntries.size()));
 
     for (const auto& entry : sortedEntries) {
-        writeU64(file, static_cast<std::uint64_t>(static_cast<std::int64_t>(entry.first)));
+        writeU64(file, static_cast<std::uint64_t>(
+            static_cast<std::int64_t>(entry.first)
+        ));
 
         writeString(file, entry.second);
     }
@@ -275,7 +331,9 @@ void Serialization::saveBinary(const std::string& filename, const Data& data) {
     }
 }
 
-Serialization::Data Serialization::loadBinaryData(const std::string& filename) {
+Serialization::Data Serialization::loadBinaryData(
+    const std::string& filename
+) {
     std::ifstream file(filename, std::ios::binary);
 
     if (!file) {
@@ -286,7 +344,8 @@ Serialization::Data Serialization::loadBinaryData(const std::string& filename) {
 
     file.read(fileMagic, sizeof(fileMagic));
 
-    if (!file || !std::equal(std::begin(magic), std::end(magic), std::begin(fileMagic))) {
+    if (!file ||
+        !std::equal(std::begin(magic), std::end(magic), std::begin(fileMagic))) {
         throw std::runtime_error("Invalid binary file: incorrect signature");
     }
 
@@ -354,4 +413,131 @@ Serialization::Data Serialization::loadBinaryData(const std::string& filename) {
     return data;
 }
 
+void Serialization::saveText(
+    const std::string& filename,
+    const Data& data
+) {
+    validateData(data);
+
+    auto sortedEntries = data.hashTable;
+
+    std::sort(sortedEntries.begin(), sortedEntries.end(),
+              [](const auto& left, const auto& right) {
+                  return left.first < right.first;
+              });
+
+    nlohmann::json hashEntries = nlohmann::json::array();
+
+    for (const auto& entry : sortedEntries) {
+        hashEntries.push_back({
+            {"key", entry.first},
+            {"value", entry.second}
+        });
+    }
+
+    nlohmann::json document = {
+        {"version", formatVersion},
+        {"arrayCapacity", data.arrayCapacity},
+        {"array", data.array},
+        {"list", data.list},
+        {"doubleList", data.doubleList},
+        {"queue", data.queue},
+        {"stack", data.stack},
+        {"hashCapacity", data.hashCapacity},
+        {"hashTable", hashEntries},
+        {"avlTree", data.avlTree}
+    };
+
+    std::ofstream file(filename, std::ios::trunc);
+
+    if (!file) {
+        throw std::runtime_error("Cannot open file for writing: " + filename);
+    }
+
+    file << document.dump(2);
+    file.flush();
+
+    if (!file) {
+        throw std::runtime_error("Error while writing text file");
+    }
 }
+
+Serialization::Data Serialization::loadTextData(
+    const std::string& filename
+) {
+    std::ifstream file(filename);
+
+    if (!file) {
+        throw std::runtime_error("Cannot open file for reading: " + filename);
+    }
+
+    nlohmann::json document;
+
+    try {
+        file >> document;
+    } catch (const nlohmann::json::exception&) {
+        throw std::runtime_error("Invalid JSON file");
+    }
+
+    try {
+        if (!document.is_object()) {
+            throw std::runtime_error("Invalid JSON document");
+        }
+
+        if (document.at("version").get<std::uint32_t>() != formatVersion) {
+            throw std::runtime_error("Unsupported text file version");
+        }
+
+        Data data;
+
+        data.arrayCapacity =
+            document.at("arrayCapacity").get<std::uint64_t>();
+
+        data.array =
+            document.at("array").get<std::vector<std::string>>();
+
+        data.list =
+            document.at("list").get<std::vector<std::string>>();
+
+        data.doubleList =
+            document.at("doubleList").get<std::vector<std::string>>();
+
+        data.queue =
+            document.at("queue").get<std::vector<std::string>>();
+
+        data.stack =
+            document.at("stack").get<std::vector<std::string>>();
+
+        data.hashCapacity =
+            document.at("hashCapacity").get<std::uint64_t>();
+
+        data.avlTree =
+            document.at("avlTree").get<std::vector<std::string>>();
+
+        const auto& hashEntries = document.at("hashTable");
+
+        if (!hashEntries.is_array()) {
+            throw std::runtime_error("Invalid hash table format");
+        }
+
+        if (hashEntries.size() > maxElements) {
+            throw std::runtime_error("Too many hash table entries");
+        }
+
+        for (const auto& entry : hashEntries) {
+            int key = entry.at("key").get<int>();
+            std::string value = entry.at("value").get<std::string>();
+
+            data.hashTable.emplace_back(key, std::move(value));
+        }
+
+        validateData(data);
+
+        return data;
+
+    } catch (const nlohmann::json::exception&) {
+        throw std::runtime_error("Invalid JSON data");
+    }
+}
+
+} // namespace lr3

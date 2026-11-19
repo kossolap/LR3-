@@ -25,15 +25,35 @@ class Serialization {
         std::vector<std::string> avlTree;
     };
 
+    // Бинарная сериализация вектора строк
+    static void saveBinary(
+        const std::string& filename,
+        const std::vector<std::string>& data
+    );
 
-    static void saveBinary(const std::string& filename, const std::vector<std::string>& data);
+    static std::vector<std::string> loadBinary(
+        const std::string& filename
+    );
 
-    static std::vector<std::string> loadBinary(const std::string& filename);
+    // Бинарная сериализация всех семи структур
+    static void saveBinary(
+        const std::string& filename,
+        const Data& data
+    );
 
+    static Data loadBinaryData(
+        const std::string& filename
+    );
 
-    static void saveBinary(const std::string& filename, const Data& data);
+    // Текстовая сериализация всех семи структур в JSON
+    static void saveText(
+        const std::string& filename,
+        const Data& data
+    );
 
-    static Data loadBinaryData(const std::string& filename);
+    static Data loadTextData(
+        const std::string& filename
+    );
 };
 
 }

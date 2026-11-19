@@ -125,7 +125,7 @@ package "lr3/structures" {
         + Capacity(): int
         + Empty(): bool
         + Clear()
-        + Entries(): map[int]string
+        + Entries(): map<int]string
         + String(): string
         - primaryHash(key: int): int
         - secondaryHash(key: int): int
@@ -199,8 +199,13 @@ package "lr3/serialization" {
     }
 
     class SerializationFunctions <<package functions>> {
+        .. JSON serialization ..
         + Serialize(data: *Data): ([]byte, error)
         + Deserialize(encoded: []byte): (*Data, error)
+
+        .. Binary serialization ..
+        + SerializeBinary(data: *Data): ([]byte, error)
+        + DeserializeBinary(encoded: []byte): (*Data, error)
     }
 
     Data ..> Array
@@ -213,7 +218,7 @@ package "lr3/serialization" {
 
     document *-- hashEntry
     SerializationFunctions ..> Data
-    SerializationFunctions ..> document
+    SerializationFunctions ..> document : JSON
 }
 
 note bottom of HashTable
@@ -228,8 +233,20 @@ note bottom of AVLTree
 end note
 
 note bottom of SerializationFunctions
-  JSON serialization.
-  Format version: 1.
+  Supported formats:
+
+  JSON:
+  - Serialize / Deserialize
+  - Text representation
+  - Format version 1
+
+  Binary:
+  - SerializeBinary / DeserializeBinary
+  - Little-endian encoding
+  - Magic header LR3GOB01
+  - Format version 1
+
+  Both formats support all 7 structures.
 end note
 
 @enduml

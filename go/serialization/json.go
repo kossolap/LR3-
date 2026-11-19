@@ -13,7 +13,6 @@ import (
 
 const formatVersion = 1
 
-
 type Data struct {
 	Array     *structures.Array
 	List      *structures.LinkedList
@@ -40,7 +39,6 @@ type document struct {
 	HashEntries  []hashEntry `json:"hash_entries"`
 	AVLKeys      []int       `json:"avl_keys"`
 }
-
 
 func Serialize(data *Data) ([]byte, error) {
 	if data == nil {
@@ -87,7 +85,6 @@ func Serialize(data *Data) ([]byte, error) {
 
 	return json.MarshalIndent(doc, "", "  ")
 }
-
 
 func Deserialize(encoded []byte) (*Data, error) {
 	decoder := json.NewDecoder(bytes.NewReader(encoded))
@@ -142,8 +139,6 @@ func Deserialize(encoded []byte) (*Data, error) {
 	for _, value := range doc.Queue {
 		data.Queue.Push(value)
 	}
-
-
 
 	for i := len(doc.Stack) - 1; i >= 0; i-- {
 		data.Stack.Push(doc.Stack[i])

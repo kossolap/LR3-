@@ -15,6 +15,7 @@ include(FetchContent)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 find_package(GTest REQUIRED)
 find_package(benchmark REQUIRED)
+find_package(nlohmann_json 3.11.3 REQUIRED)
 
 add_library(lr3_structures
     src/Array.cpp
@@ -28,6 +29,10 @@ add_library(lr3_structures
 )
 
 target_include_directories(lr3_structures PUBLIC include)
+
+target_link_libraries(lr3_structures PUBLIC
+    nlohmann_json::nlohmann_json
+)
 
 add_executable(lr3_demo app/main.cpp)
 target_link_libraries(lr3_demo PRIVATE lr3_structures)

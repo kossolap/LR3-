@@ -1,6 +1,6 @@
 
 @startuml
-title UML-диаграмма классов C++
+title UML-диаграмма классов C++17
 skinparam classAttributeIconSize 0
 hide empty members
 
@@ -122,10 +122,15 @@ package "lr3" {
     }
 
     class Serialization <<utility>> {
+        .. Бинарная сериализация ..
         + saveBinary(filename: string, data: vector<string>): void
         + loadBinary(filename: string): vector<string>
         + saveBinary(filename: string, data: Data): void
         + loadBinaryData(filename: string): Data
+
+        .. Текстовая сериализация (JSON) ..
+        + saveText(filename: string, data: Data): void
+        + loadTextData(filename: string): Data
     }
 
     class "Serialization::Data" as SerializationData {
@@ -155,5 +160,23 @@ package "lr3" {
     HashTable "1" *-- "0..*" HashEntry
 
     Serialization ..> SerializationData : сериализует
+
+    SerializationData ..> Array : данные
+    SerializationData ..> List : данные
+    SerializationData ..> DList : данные
+    SerializationData ..> Queue : данные
+    SerializationData ..> Stack : данные
+    SerializationData ..> HashTable : данные
+    SerializationData ..> AVLTree : данные
 }
+
+note right of Serialization
+  Поддерживаются два формата:
+  1. Binary — двоичный файл
+  2. JSON — текстовый файл
+
+  Оба формата сохраняют
+  все 7 структур данных.
+end note
+
 @enduml

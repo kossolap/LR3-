@@ -241,7 +241,6 @@ func (t *AVLTree) Postorder() []int {
 	return result
 }
 
-
 func (t *AVLTree) Validate() bool {
 	count := 0
 

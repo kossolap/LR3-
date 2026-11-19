@@ -73,7 +73,6 @@ func NewHashTable(capacity int) *HashTable {
 	}
 }
 
-
 func foldingHash(key int) uint64 {
 	var value uint64
 
